@@ -33,3 +33,43 @@ button, .button {
   font-family: 'Cleo Folk', cursive;
   letter-spacing: 0.5px;
 }
+
+.drop-bar {
+  background: #12203A;
+  color: #fff;
+  text-align: center;
+  padding: 8px;
+  font-size: 12px;
+  letter-spacing: 1px;
+  font-weight: 700;
+}
+
+.headies-hero {
+  background: linear-gradient(180deg, var(--headies-primary) 0%, #1a4785 100%);
+  color: #fff;
+  text-align: center;
+  padding: 60px 24px;
+}
+
+.headies-hero h1 {
+  font-size: 42px;
+  margin-bottom: 16px;
+  color: #fff;
+}
+
+.headies-hero p {
+  max-width: 480px;
+  margin: 0 auto 24px;
+  color: #cfe0f5;
+  font-size: 15px;
+}
+
+.hero-cta {
+  display: inline-block;
+  background: var(--headies-accent);
+  color: #0b2a4a;
+  font-weight: 700;
+  padding: 14px 28px;
+  border-radius: 8px;
+  text-decoration: none;
+}
