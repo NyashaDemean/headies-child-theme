@@ -12,3 +12,24 @@ Text Domain: headies
   --headies-primary: #2359A9;
   --headies-accent: #41AAF5;
 }
+
+@font-face {
+  font-family: 'Cleo Folk';
+  src: url('fonts/cleo-folk.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap');
+
+body {
+  font-family: 'Nunito', sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6,
+.site-title,
+.woocommerce-loop-product__title,
+button, .button {
+  font-family: 'Cleo Folk', cursive;
+  letter-spacing: 0.5px;
+}
