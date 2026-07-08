@@ -1,0 +1,14 @@
+/*
+Theme Name: Headies
+Theme URI: https://headies.co.zw
+Description: Custom child theme for Headies, built on Storefront.
+Author: Nyasha Demean Muzerengi
+Template: storefront
+Version: 1.0.0
+Text Domain: headies
+*/
+
+:root {
+  --headies-primary: #2359A9;
+  --headies-accent: #41AAF5;
+}
