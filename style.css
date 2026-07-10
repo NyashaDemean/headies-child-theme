@@ -45,22 +45,37 @@ button, .button {
 }
 
 .headies-hero {
-  background: linear-gradient(180deg, var(--headies-primary) 0%, #1a4785 100%);
-  color: #fff;
-  text-align: center;
-  padding: 60px 24px;
+  background-size: cover;
+  background-position: center 25%;
+  min-height: 640px;
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+}
+
+.headies-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(0deg, rgba(11,42,74,0.88) 0%, rgba(11,42,74,0.35) 55%, rgba(11,42,74,0) 100%);
+}
+
+.hero-overlay {
+  position: relative;
+  z-index: 1;
+  padding: 48px;
+  max-width: 560px;
 }
 
 .headies-hero h1 {
-  font-size: 42px;
+  font-size: 40px;
   margin-bottom: 16px;
   color: #fff;
 }
 
 .headies-hero p {
-  max-width: 480px;
-  margin: 0 auto 24px;
-  color: #cfe0f5;
+  margin: 0 0 24px;
+  color: #dce9f7;
   font-size: 15px;
 }
 
@@ -72,4 +87,16 @@ button, .button {
   padding: 14px 28px;
   border-radius: 8px;
   text-decoration: none;
+}
+
+@media (max-width: 700px) {
+  .headies-hero {
+    min-height: 520px;
+  }
+  .hero-overlay {
+    padding: 32px 24px;
+  }
+  .headies-hero h1 {
+    font-size: 30px;
+  }
 }
