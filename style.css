@@ -337,4 +337,52 @@ button, .button {
     font-size: 24px;
   }
 }
+/* ===== FOOTER ===== */
+.headies-footer {
+  background: #fff;
+  padding: 60px 40px 40px;
+  text-align: center;
+}
+
+.footer-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.footer-socials {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.footer-socials a {
+  color: #12203A;
+  display: flex;
+}
+
+.footer-socials svg {
+  width: 22px;
+  height: 22px;
+}
+
+.footer-copyright {
+  color: #8a8a8a;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+  margin: 0 0 20px;
+}
+
+.footer-logo {
+  height: 40px;
+  width: auto;
+  display: block;
+  margin: 0 auto;
+}
+
+@media (max-width: 700px) {
+  .headies-footer {
+    padding: 40px 20px 30px;
+  }
+}
 
