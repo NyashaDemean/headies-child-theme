@@ -100,3 +100,119 @@ button, .button {
     font-size: 30px;
   }
 }
+/* ===== HEADIES NAV ===== */
+.headies-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 999;
+  background: transparent;
+  transition: background 0.3s ease;
+}
+
+.headies-nav.nav-scrolled,
+.headies-nav:hover {
+  background: #fff;
+}
+
+.nav-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 64px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.nav-links {
+  display: flex;
+  gap: 28px;
+  flex: 1;
+}
+
+.nav-links a {
+  color: #fff;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 16px;
+  letter-spacing: 0.5px;
+  transition: color 0.3s ease;
+}
+
+.headies-nav.nav-scrolled .nav-links a,
+.headies-nav:hover .nav-links a {
+  color: #000;
+}
+
+.nav-logo {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.nav-logo img {
+  height: 42px;
+  width: auto;
+}
+
+.nav-logo .logo-default { display: block; }
+.nav-logo .logo-hover { display: none; }
+
+.headies-nav.nav-scrolled .nav-logo .logo-default,
+.headies-nav:hover .nav-logo .logo-default { display: none; }
+
+.headies-nav.nav-scrolled .nav-logo .logo-hover,
+.headies-nav:hover .nav-logo .logo-hover { display: block; }
+
+.nav-icons {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex: 1;
+  justify-content: flex-end;
+}
+
+.nav-icon {
+  color: #fff;
+  display: flex;
+  align-items: center;
+  position: relative;
+  transition: color 0.3s ease;
+}
+
+.headies-nav.nav-scrolled .nav-icon,
+.headies-nav:hover .nav-icon {
+  color: #000;
+}
+
+.nav-icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.cart-count {
+  position: absolute;
+  top: -6px;
+  right: -8px;
+  background: var(--headies-accent);
+  color: #0b2a4a;
+  font-size: 10px;
+  font-weight: 700;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-search-bar {
+  display: none;
+}
+
+@media (max-width: 700px) {
+  .nav-links { display: none; }
+  .nav-inner { padding: 14px 20px; }
+}
+

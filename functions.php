@@ -19,3 +19,24 @@ function headies_get_drops() {
         ),
     );
 }
+function headies_nav_scroll_script() {
+    ?>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var nav = document.getElementById('masthead');
+        if (!nav) return;
+        function checkScroll() {
+            if (window.scrollY > 40) {
+                nav.classList.add('nav-scrolled');
+            } else {
+                nav.classList.remove('nav-scrolled');
+            }
+        }
+        window.addEventListener('scroll', checkScroll);
+        checkScroll();
+    });
+    </script>
+    <?php
+}
+add_action( 'wp_footer', 'headies_nav_scroll_script' );
+
