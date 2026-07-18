@@ -276,4 +276,65 @@ button, .button {
     grid-template-columns: 1fr;
   }
 }
+/* ===== TRENDING NOW ===== */
+.trending-now {
+  position: relative;
+  background-size: cover;
+  background-position: center;
+  min-height: 65vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding: 48px;
+}
+
+.trending-now::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(0deg, rgba(11,42,74,0.75) 0%, rgba(11,42,74,0.15) 50%, rgba(11,42,74,0) 100%);
+}
+
+.trending-heading {
+  position: relative;
+  z-index: 1;
+  color: #fff;
+  font-size: 32px;
+  margin: 0;
+}
+
+.trending-info {
+  position: relative;
+  z-index: 1;
+  margin-top: auto;
+  align-self: flex-end;
+  text-align: right;
+}
+
+.trending-drop-name {
+  color: #fff;
+  font-family: 'Cleo Folk', cursive;
+  font-size: 20px;
+  margin: 0 0 12px;
+}
+
+.trending-cta {
+  display: inline-block;
+  background: #fff;
+  color: #000;
+  font-weight: 700;
+  padding: 12px 28px;
+  border-radius: 8px;
+  text-decoration: none;
+}
+
+@media (max-width: 700px) {
+  .trending-now {
+    min-height: 50vh;
+    padding: 28px;
+  }
+  .trending-heading {
+    font-size: 24px;
+  }
+}
 

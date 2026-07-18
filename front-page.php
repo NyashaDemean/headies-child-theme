@@ -26,5 +26,12 @@
     <?php endforeach; ?>
   </div>
 </section>
+<section class="trending-now" style="background-image: url('<?php echo esc_url( get_stylesheet_directory_uri() . '/images/hero-cap.jpg' ); ?>');">
+  <h2 class="trending-heading">Trending Now</h2>
+  <div class="trending-info">
+    <p class="trending-drop-name"><?php echo esc_html( $headies_drops[0]['name'] ); ?></p>
+    <a href="<?php echo esc_url( get_permalink( wc_get_page_id( 'shop' ) ) ); ?>" class="trending-cta">Shop Now</a>
+  </div>
+</section>
 
 <?php get_footer(); ?>
