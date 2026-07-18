@@ -17,8 +17,27 @@ function headies_get_drops() {
             'status' => 'upcoming',
             'date'   => 'Coming August 2026',
         ),
+	array(
+            'name'   => 'Everyday Navy',
+            'desc'   => 'Clean navy fitted, everyday staple.',
+            'status' => 'upcoming',
+            'date'   => 'Available now',
+        ),
+        array(
+            'name'   => 'Classic Black',
+            'desc'   => 'All-black everyday cap.',
+            'status' => 'upcoming',
+            'date'   => 'Available now',
+        ),
+        array(
+            'name'   => 'Bedazzled Blue',
+            'desc'   => 'Rhinestone accent on signature blue.',
+            'status' => 'upcoming',
+            'date'   => 'Coming September 2026',
+        ),
     );
 }
+
 function headies_nav_scroll_script() {
     ?>
     <script>

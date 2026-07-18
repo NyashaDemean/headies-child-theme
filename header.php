@@ -10,7 +10,20 @@
 <?php wp_body_open(); ?>
 <div id="page" class="hfeed site">
 
-  <header id="masthead" class="headies-nav">
+  <?php
+$headies_drops_bar = headies_get_drops();
+$headies_live_drop_bar = null;
+foreach ( $headies_drops_bar as $d ) {
+    if ( $d['status'] === 'live' ) { $headies_live_drop_bar = $d; break; }
+}
+?>
+<header id="masthead" class="headies-nav">
+  <?php if ( $headies_live_drop_bar ) : ?>
+  <div class="drop-bar">
+    <?php echo esc_html( strtoupper( $headies_live_drop_bar['name'] ) ); ?> · LIMITED CUSTOM CAPS · WHEN THEY'RE GONE, THEY'RE GONE
+  </div>
+  <?php endif; ?>
+
     <div class="nav-inner">
 
       <div class="nav-links">

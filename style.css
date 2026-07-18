@@ -110,6 +110,10 @@ button, .button {
   background: transparent;
   transition: background 0.3s ease;
 }
+.headies-nav .drop-bar {
+  background: #12203A;
+  color: #fff;
+}
 
 .headies-nav.nav-scrolled,
 .headies-nav:hover {
@@ -214,5 +218,62 @@ button, .button {
 @media (max-width: 700px) {
   .nav-links { display: none; }
   .nav-inner { padding: 14px 20px; }
+}
+/* ===== RECENT COLLECTIONS ===== */
+.recent-collections {
+  background: #fff;
+  padding: 60px 40px 80px;
+  text-align: center;
+}
+
+.recent-collections h2 {
+  font-size: 28px;
+  margin-bottom: 40px;
+}
+
+.collections-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.collection-card {
+  text-align: left;
+}
+
+.collection-image {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border-radius: 6px;
+  background: #f2f2f2;
+}
+
+.collection-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.collection-name {
+  margin-top: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #12203A;
+}
+
+@media (max-width: 900px) {
+  .collections-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 500px) {
+  .collections-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
