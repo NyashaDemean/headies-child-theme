@@ -386,3 +386,18 @@ button, .button {
   }
 }
 
+.page-template-page-hats-php .headies-nav{
+  position: static !important;
+  background: #ffffff !important;
+}
+.page-template-page-hats-php .hats-page{
+  padding-top: 20px;
+}
+.page-template-page-hats-php .headies-nav,
+.page-template-page-hats-php .headies-nav a,
+.page-template-page-hats-php .nav-links a,
+.page-template-page-hats-php .nav-logo,
+.page-template-page-hats-php .nav-icons,
+.page-template-page-hats-php .nav-icons a {
+  color: #111111 !important;
+}
