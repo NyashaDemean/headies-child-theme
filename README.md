@@ -46,3 +46,13 @@ Drops live in `headies_get_drops()` inside `functions.php`. Each drop is an arra
 ## Author
 
 Nyasha Demean Muzerengi
+
+## Recent Updates
+
+- Added 7 new hat products (Chicago White Sox, LA Dodgers x3, NY Pink Monogram, NY Yankees Maroon, Phillies) via WP-CLI, each with front/back images for hover-swap
+- Reworked Hats page grid layout: 4-column dense grid with thin dividers (no gaps), full-bleed product images edge-to-edge
+- Wishlist and cart icons now overlay directly on top of product images (heart top-left, cart top-right) instead of sitting in a separate row
+- Swapped the "bag" icon for a cart icon matching the main nav
+- Fixed nav bar and logo visibility bug on non-hero pages (was invisible/blue-on-white)
+
+**Known issue / next session:** icon overlay positioning needs another pass — icons aren't consistently sitting flush over the image on all cards yet.
