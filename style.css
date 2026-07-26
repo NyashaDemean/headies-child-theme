@@ -401,3 +401,87 @@ button, .button {
 .page-template-page-hats-php .nav-icons a {
   color: #111111 !important;
 }
+
+.page-template-page-hats-php .nav-logo .logo-default {
+  display: none !important;
+}
+
+.page-template-page-hats-php .nav-logo .logo-hover {
+  display: block !important;
+}
+
+.hats-icon-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.85);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+}
+
+/* Full-bleed hats grid, LV-style */
+.hats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hats-grid li.product,
+/* Hats grid redesign v2 — spaced grid, refined typography */
+.hats-grid {
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 24px !important;
+  margin: 40px 0 0 !important;
+  padding: 0 !important;
+}
+
+.hats-grid li.product,
+.hats-name {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #1a1a1a;
+}
+
+.hats-price {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1a1a1a;
+  white-space: nowrap;
+  margin-left: 12px;
+}
+
+/* Override Storefront's default li.product float/width so our grid controls layout */
+.hats-grid li.product,
+ul.products.hats-grid li.product {
+  float: none !important;
+  width: auto !important;
+  clear: none !important;
+  margin-right: 0 !important;
+}
+
+/* Hats grid redesign v3 — tight, bordered, dense like reference sites */
+.hats-grid {
+  grid-template-columns: repeat(4, 1fr) !important;
+  gap: 0 !important;
+  margin: 12px 0 0 !important;
+}
+
+.hats-grid li.product,
+.hats-grid li.product:nth-child(4n),
+/* Break hats-grid out of the theme's col-full side padding for true edge-to-edge */
+.hats-grid {
+  margin-left: -2.617924em !important;
+  margin-right: -2.617924em !important;
+  width: calc(100% + 5.235848em) !important;
+}
+
