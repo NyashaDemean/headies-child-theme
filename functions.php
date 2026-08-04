@@ -41,8 +41,8 @@ function headies_get_drops() {
             $status = 'live';
             $date_label = 'Available now';
         }
+	$image_url = $image_id ? wp_get_attachment_image_url( $image_id, 'full' ) : '';
 
-        $image_url = $image_id ? wp_get_attachment_image_url( $image_id, 'large' ) : '';
 
         $drops[] = array(
             'id'            => $term->term_id,

@@ -10,29 +10,37 @@ foreach ( $drops as $drop ) {
         $groups['upcoming'][] = $drop;
     }
 }
-
 ?>
 
 <?php if ( ! empty( $groups['upcoming'] ) ) : ?>
-  <?php foreach ( $groups['upcoming'] as $drop ) : ?>
-    <div class="upcoming-drop">
-      <div class="upcoming-drop-image">
-        <img src="<?php echo esc_url( $drop['image'] ); ?>" alt="<?php echo esc_attr( $drop['name'] ); ?>">
+  <div class="drops-carousel" id="dropsCarousel">
+    <?php foreach ( $groups['upcoming'] as $i => $drop ) : ?>
+      <div class="drops-slide <?php echo $i === 0 ? 'active' : ''; ?>" data-slide="<?php echo esc_attr( $i ); ?>">
+        <div class="upcoming-drop-image">
+          <img src="<?php echo esc_url( $drop['image'] ); ?>" alt="<?php echo esc_attr( $drop['name'] ); ?>">
+        </div>
+        <div class="upcoming-drop-info">
+          <span class="upcoming-drop-countdown" data-dropdate="<?php echo esc_attr( $drop['drop_datetime'] ); ?>">Loading...</span>
+          <h2 class="upcoming-drop-name"><?php echo esc_html( $drop['name'] ); ?></h2>
+          <p class="upcoming-drop-desc"><?php echo esc_html( $drop['desc'] ); ?></p>
+          <a href="#" class="upcoming-drop-cta">Shop Now</a>
+        </div>
       </div>
-      <div class="upcoming-drop-info">
-        <span class="upcoming-drop-countdown" data-dropdate="<?php echo esc_attr( $drop['drop_datetime'] ); ?>">Loading...</span>
-        <h2 class="upcoming-drop-name"><?php echo esc_html( $drop['name'] ); ?></h2>
-        <p class="upcoming-drop-desc"><?php echo esc_html( $drop['desc'] ); ?></p>
-        <a href="#" class="upcoming-drop-cta">Shop Now</a>
+    <?php endforeach; ?>
+
+    <?php if ( count( $groups['upcoming'] ) > 1 ) : ?>
+      <div class="drops-carousel-dots">
+        <?php foreach ( $groups['upcoming'] as $i => $drop ) : ?>
+          <button class="drops-dot <?php echo $i === 0 ? 'active' : ''; ?>" data-goto="<?php echo esc_attr( $i ); ?>" aria-label="Go to slide <?php echo esc_attr( $i + 1 ); ?>"></button>
+        <?php endforeach; ?>
       </div>
-    </div>
-  <?php endforeach; ?>
+    <?php endif; ?>
+  </div>
 <?php endif; ?>
 
 <div class="drops-page">
   <h1>Drops</h1>
   <p class="drops-intro">Everyday caps are always in the shop. These are the occasional limited customization runs — see what's live, what's next, and what's already sold out.</p>
-
 
   <?php if ( ! empty( $groups['past'] ) ) : ?>
     <h2 class="drops-section-title">Past Drops</h2>
@@ -62,15 +70,20 @@ foreach ( $drops as $drop ) {
   max-width:640px; padding-bottom: 30px;
 }
 
-.upcoming-drop{
-  position:relative; width:100%; aspect-ratio: 16/9; overflow:hidden;
+.drops-carousel{ position:relative; width:100%; aspect-ratio: 16/9; overflow:hidden; }
+.drops-slide{
+  position:absolute; inset:0; width:100%; height:100%;
   display:flex; align-items:flex-end;
+  opacity:0; visibility:hidden; transition: opacity .6s ease;
+  z-index:1;
 }
+.drops-slide.active{ opacity:1; visibility:visible; z-index:2; }
+
 .upcoming-drop-image{
   position:absolute; inset:0; width:100%; height:100%; z-index:1;
 }
 .upcoming-drop-image img{ width:100%; height:100%; object-fit:cover; }
-.upcoming-drop::after{
+.drops-slide::after{
   content:""; position:absolute; inset:0; z-index:2;
   background: linear-gradient(180deg, rgba(0,0,0,0) 40%, rgba(0,0,0,0.75) 100%);
 }
@@ -98,8 +111,19 @@ foreach ( $drops as $drop ) {
 }
 .upcoming-drop-cta:hover{ background:#2359A9; color:#fff; }
 
+.drops-carousel-dots{
+  position:absolute; bottom:20px; right:30px; z-index:4;
+  display:flex; gap:10px;
+}
+.drops-dot{
+  width:10px; height:10px; border-radius:50%; border:none;
+  background:rgba(255,255,255,0.4); cursor:pointer; padding:0;
+  transition: background .2s ease;
+}
+.drops-dot.active{ background:#fff; }
+
 @media (max-width: 800px){
-  .upcoming-drop{ aspect-ratio: 4/5; }
+  .drops-carousel{ aspect-ratio: 4/5; }
   .upcoming-drop-name{ font-size:28px; }
 }
 
@@ -138,36 +162,65 @@ foreach ( $drops as $drop ) {
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+  // Countdown timers (run for every slide, even hidden ones)
   var countdownEls = document.querySelectorAll('.upcoming-drop-countdown');
   countdownEls.forEach(function(el) {
     var target = new Date(el.getAttribute('data-dropdate').replace(' ', 'T')).getTime();
-
     function pad(n) { return n < 10 ? '0' + n : n; }
-
     var timer = setInterval(update, 1000);
     update();
-
     function update() {
       var now = new Date().getTime();
       var diff = target - now;
-
       if (diff <= 0) {
         el.textContent = 'OUT NOW';
         el.classList.add('is-live');
         clearInterval(timer);
         return;
       }
-
-      var days = Math.floor(diff / (1000 * 60 * 60 * 24));
-      var hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      var mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-      var secs = Math.floor((diff % (1000 * 60)) / 1000);
-
+      var days = Math.floor(diff / 86400000);
+      var hours = Math.floor((diff % 86400000) / 3600000);
+      var mins = Math.floor((diff % 3600000) / 60000);
+      var secs = Math.floor((diff % 60000) / 1000);
       el.textContent = days > 0
         ? 'DROPS IN ' + days + 'd ' + pad(hours) + ':' + pad(mins) + ':' + pad(secs)
         : 'DROPS IN ' + pad(hours) + ':' + pad(mins) + ':' + pad(secs);
     }
   });
+
+  // Carousel logic
+  var carousel = document.getElementById('dropsCarousel');
+  if (!carousel) return;
+  var slides = carousel.querySelectorAll('.drops-slide');
+  var dots = carousel.querySelectorAll('.drops-dot');
+  if (slides.length <= 1) return;
+
+  var current = 0;
+  function goTo(index) {
+    slides[current].classList.remove('active');
+    dots[current] && dots[current].classList.remove('active');
+    current = index;
+    slides[current].classList.add('active');
+    dots[current] && dots[current].classList.add('active');
+  }
+
+  dots.forEach(function(dot) {
+    dot.addEventListener('click', function() {
+      goTo(parseInt(dot.getAttribute('data-goto'), 10));
+      resetAutoplay();
+    });
+  });
+
+  var autoplay = setInterval(function() {
+    goTo((current + 1) % slides.length);
+  }, 6000);
+
+  function resetAutoplay() {
+    clearInterval(autoplay);
+    autoplay = setInterval(function() {
+      goTo((current + 1) % slides.length);
+    }, 6000);
+  }
 });
 </script>
 

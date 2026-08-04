@@ -4,6 +4,9 @@
  */
 get_header(); ?>
 
+<section class="hats-hero" style="background-image: url('<?php echo esc_url( get_stylesheet_directory_uri() . '/images/drops/drop-photo-07.jpg' ); ?>');"></section>
+
+
 <div class="hats-page">
 
   <div class="hats-page-header">
@@ -36,15 +39,6 @@ get_header(); ?>
         $front_image = get_the_post_thumbnail_url( get_the_ID(), 'woocommerce_single' );
       ?>
         <div class="hats-card">
-          <div class="hats-card-icons">
-            <button class="hats-icon-btn hats-wishlist" aria-label="Add to wishlist">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 21s-7.5-4.6-10-9.2C0.3 8 2 4 6 4c2.2 0 3.7 1.2 6 4.2C14.3 5.2 15.8 4 18 4c4 0 5.7 4 4 7.8-2.5 4.6-10 9.2-10 9.2z"/></svg>
-            </button>
-            <button class="hats-icon-btn hats-addbag" aria-label="Add to bag">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 6h15l-1.5 9h-12z"/><path d="M6 6L5 3H2"/><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/></svg>
-            </button>
-          </div>
-
           <a href="<?php the_permalink(); ?>" class="hats-card-image">
             <img class="hats-img-front" src="<?php echo esc_url( $front_image ); ?>" alt="<?php the_title_attribute(); ?>">
             <?php if ( $back_image ) : ?>
@@ -78,8 +72,30 @@ get_header(); ?>
 </div>
 
 <style>
-.hats-page{ background:#ffffff; padding: 0 40px 40px; }
-.hats-page-header{ padding: 34px 0 18px; }
+/* Force nav transparent on this page specifically, overriding anything else */
+body .headies-nav:not(.nav-scrolled):not(:hover){
+  background: transparent !important;
+}
+body .headies-nav:not(.nav-scrolled):not(:hover) .nav-links a,
+body .headies-nav:not(.nav-scrolled):not(:hover) .nav-icon{
+  color: #fff !important;
+}
+body .headies-nav:not(.nav-scrolled):not(:hover) .nav-logo .logo-default{
+  display: block !important;
+}
+body .headies-nav:not(.nav-scrolled):not(:hover) .nav-logo .logo-hover{
+  display: none !important;
+}
+
+.hats-hero{
+  width:100%;
+  min-height:320px;
+  background-size:cover;
+  background-position:center 0%;
+}
+
+.hats-page{ background:#ffffff; padding: 0; }
+.hats-page-header{ padding: 34px 40px 18px; }
 .hats-page-header h1{
   font-family: 'Cleo Folk', Georgia, serif;
   font-size: 34px; font-weight: 800; text-transform: uppercase;
@@ -88,32 +104,26 @@ get_header(); ?>
 
 .hats-grid{
   display:grid;
-  grid-template-columns:repeat(4, 1fr);
+  grid-template-columns:repeat(3, 1fr);
+  gap:0;
+  max-width:1400px;
+  margin:0 auto;
   border-top:1px solid #e7e7e7;
   border-left:1px solid #e7e7e7;
 }
 @media (max-width: 900px){
   .hats-grid{ grid-template-columns:repeat(2, 1fr); }
+  .hats-hero{ min-height:220px; }
 }
 
 .hats-card{
   border-right:1px solid #e7e7e7;
   border-bottom:1px solid #e7e7e7;
-  padding:16px 16px 20px;
-  position:relative;
 }
-.hats-card-icons{ display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
-.hats-icon-btn{
-  background:none; border:none; padding:0; cursor:pointer;
-  width:22px; height:22px; color:#111;
-  transition: transform .15s ease, color .15s ease;
-}
-.hats-icon-btn:hover{ color:#2359A9; transform: scale(1.08); }
-.hats-icon-btn svg{ width:100%; height:100%; }
 
 .hats-card-image{
   position:relative; display:block;
-  width:100%; aspect-ratio: 1 / 1; overflow:hidden; background:#fff;
+  width:100%; aspect-ratio: 4 / 3; overflow:hidden; background:#f4f4f4;
 }
 .hats-card-image img{
   position:absolute; inset:0; width:100%; height:100%;
@@ -124,8 +134,9 @@ get_header(); ?>
 .hats-card:hover .hats-img-back{ opacity:1; }
 
 .hats-card-info{
-  display:flex; justify-content:space-between; align-items:flex-start;
-  margin-top:14px; font-size:13.5px; font-family: 'Nunito', sans-serif;
+  display:flex; justify-content:space-between; align-items:center;
+  padding: 12px 14px; font-size:13.5px; font-family: 'Nunito', sans-serif;
+  border-top:1px solid #e7e7e7;
 }
 .hats-name{ font-weight:700; text-transform:uppercase; letter-spacing:0.02em; max-width:75%; line-height:1.35; }
 .hats-price{ font-weight:700; color:#111; white-space:nowrap; }
@@ -141,3 +152,4 @@ get_header(); ?>
 </style>
 
 <?php get_footer(); ?>
+
