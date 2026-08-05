@@ -386,29 +386,6 @@ button, .button {
   }
 }
 
-.page-template-page-hats-php .headies-nav{
-  position: static !important;
-  background: #ffffff !important;
-}
-.page-template-page-hats-php .hats-page{
-  padding-top: 20px;
-}
-.page-template-page-hats-php .headies-nav,
-.page-template-page-hats-php .headies-nav a,
-.page-template-page-hats-php .nav-links a,
-.page-template-page-hats-php .nav-logo,
-.page-template-page-hats-php .nav-icons,
-.page-template-page-hats-php .nav-icons a {
-  color: #111111 !important;
-}
-
-.page-template-page-hats-php .nav-logo .logo-default {
-  display: none !important;
-}
-
-.page-template-page-hats-php .nav-logo .logo-hover {
-  display: block !important;
-}
 
 .hats-icon-btn {
   width: 34px;
@@ -485,3 +462,71 @@ ul.products.hats-grid li.product {
   width: calc(100% + 5.235848em) !important;
 }
 
+/* ===== SINGLE PRODUCT PAGE ===== */
+.headies-product-layout {
+  display: flex;
+  gap: 64px;
+  align-items: flex-start;
+  max-width: 1400px;
+  margin: 40px auto;
+  padding: 0 40px;
+}
+
+.headies-product-layout .woocommerce-product-gallery {
+  flex: 1.2;
+  max-width: 700px;
+}
+
+.headies-product-layout .summary.entry-summary {
+  flex: 1;
+  position: sticky;
+  top: 120px;
+  padding-top: 20px;
+}
+
+.headies-product-layout .summary.entry-summary .product_title {
+  font-family: 'Cleo Folk', Georgia, serif;
+  font-size: 34px;
+  text-transform: uppercase;
+  color: #111;
+  margin-bottom: 8px;
+}
+
+.headies-product-layout .summary.entry-summary .price {
+  font-size: 22px;
+  color: #2359A9;
+  font-weight: 700;
+  margin-bottom: 24px;
+  display: block;
+}
+
+.headies-product-layout .summary.entry-summary .cart {
+  margin-top: 24px;
+}
+
+.headies-product-layout .summary.entry-summary .single_add_to_cart_button {
+  background: #2359A9;
+  color: #fff;
+  border: none;
+  border-radius: 30px;
+  padding: 16px 40px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  width: 100%;
+  cursor: pointer;
+}
+
+.headies-product-layout .summary.entry-summary .single_add_to_cart_button:hover {
+  background: #41AAF5;
+}
+
+@media (max-width: 900px) {
+  .headies-product-layout {
+    flex-direction: column;
+    padding: 0 20px;
+  }
+  .headies-product-layout .summary.entry-summary {
+    position: static;
+  }
+}

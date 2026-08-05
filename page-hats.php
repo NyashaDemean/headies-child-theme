@@ -4,7 +4,7 @@
  */
 get_header(); ?>
 
-<section class="hats-hero" style="background-image: url('<?php echo esc_url( get_stylesheet_directory_uri() . '/images/drops/drop-photo-07.jpg' ); ?>');"></section>
+<section class="hats-hero" style="background-image: url('<?php echo esc_url( get_stylesheet_directory_uri() . '/images/hats-hero-classic-black.jpg' ); ?>');"></section>
 
 
 <div class="hats-page">
@@ -91,7 +91,7 @@ body .headies-nav:not(.nav-scrolled):not(:hover) .nav-logo .logo-hover{
   width:100%;
   min-height:320px;
   background-size:cover;
-  background-position:center 0%;
+  background-position:center 26%;
 }
 
 .hats-page{ background:#ffffff; padding: 0; }

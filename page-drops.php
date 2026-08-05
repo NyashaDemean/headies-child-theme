@@ -23,7 +23,8 @@ foreach ( $drops as $drop ) {
           <span class="upcoming-drop-countdown" data-dropdate="<?php echo esc_attr( $drop['drop_datetime'] ); ?>">Loading...</span>
           <h2 class="upcoming-drop-name"><?php echo esc_html( $drop['name'] ); ?></h2>
           <p class="upcoming-drop-desc"><?php echo esc_html( $drop['desc'] ); ?></p>
-          <a href="#" class="upcoming-drop-cta">Shop Now</a>
+          <?php $drop_link = get_term_link( (int) $drop['id'], 'product_drop' ); ?>
+          <a href="<?php echo esc_url( is_wp_error( $drop_link ) ? '#' : $drop_link ); ?>" class="upcoming-drop-cta">Shop Now</a>
         </div>
       </div>
     <?php endforeach; ?>
@@ -46,7 +47,8 @@ foreach ( $drops as $drop ) {
     <h2 class="drops-section-title">Past Drops</h2>
     <div class="past-drops-scroll">
       <?php foreach ( $groups['past'] as $drop ) : ?>
-        <a href="#" class="past-drop-card">
+        <?php $drop_link = get_term_link( (int) $drop['id'], 'product_drop' ); ?>
+        <a href="<?php echo esc_url( is_wp_error( $drop_link ) ? '#' : $drop_link ); ?>" class="past-drop-card">
           <div class="past-drop-image">
             <img src="<?php echo esc_url( $drop['image'] ); ?>" alt="<?php echo esc_attr( $drop['name'] ); ?>">
           </div>

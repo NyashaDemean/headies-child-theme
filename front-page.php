@@ -18,12 +18,13 @@
     foreach ( $headies_recent as $drop ) :
       $collection_image = ! empty( $drop['image'] ) ? $drop['image'] : get_stylesheet_directory_uri() . '/images/hero-cap.jpg';
     ?>
-      <div class="collection-card">
+      <?php $drop_link = get_term_link( (int) $drop['id'], 'product_drop' ); ?>
+      <a href="<?php echo esc_url( is_wp_error( $drop_link ) ? '#' : $drop_link ); ?>" class="collection-card">
         <div class="collection-image">
-          <img src="<?php echo esc_url( $collection_image ); ?>" alt="<?php echo esc_attr( $drop['name'] ); ?>">
+    	  <img src="<?php echo esc_url( $collection_image ); ?>" alt="<?php echo esc_attr( $drop['name'] ); ?>">
         </div>
         <p class="collection-name"><?php echo esc_html( $drop['name'] ); ?></p>
-      </div>
+      </a>
     <?php endforeach; ?>
   </div>
 </section>

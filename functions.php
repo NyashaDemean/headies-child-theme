@@ -89,7 +89,7 @@ function headies_register_drop_taxonomy() {
             'add_new_item'  => 'Add New Drop',
             'edit_item'     => 'Edit Drop',
         ),
-        'hierarchical'      => false,
+        'hierarchical'      => true,
         'show_ui'           => true,
         'show_admin_column' => true,
         'show_in_rest'      => true,
