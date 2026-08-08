@@ -43,8 +43,9 @@ foreach ( $headies_drops_bar as $d ) {
         <a href="#" class="nav-icon nav-search-toggle" aria-label="Search">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         </a>
-        <a href="<?php echo esc_url( home_url( '/wishlist' ) ); ?>" class="nav-icon" aria-label="Wishlist">
+        <a href="<?php echo esc_url( home_url( '/wishlist' ) ); ?>" class="nav-icon nav-wishlist" aria-label="Wishlist">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
+          <span class="wishlist-count"><?php echo esc_html( function_exists( 'headies_wishlist_count' ) ? headies_wishlist_count() : 0 ); ?></span>
         </a>
         <a href="<?php echo esc_url( wc_get_page_permalink( 'myaccount' ) ); ?>" class="nav-icon" aria-label="Account">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg>

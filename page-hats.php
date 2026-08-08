@@ -45,6 +45,7 @@ get_header(); ?>
               <img class="hats-img-back" src="<?php echo esc_url( $back_image ); ?>" alt="<?php the_title_attribute(); ?> underbrim">
             <?php endif; ?>
           </a>
+          <?php headies_wishlist_button( get_the_ID() ); ?>
 
           <div class="hats-card-info">
             <span class="hats-name"><?php the_title(); ?></span>
