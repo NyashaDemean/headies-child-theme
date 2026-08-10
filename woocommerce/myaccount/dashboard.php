@@ -34,7 +34,7 @@ $headies_recent = wc_get_orders( array(
       ?>
     </p>
   </div>
-  <a class="headies-btn-outline" href="<?php echo esc_url( home_url( '/hats' ) ); ?>">Shop caps</a>
+  <a class="headies-shop-cta" href="<?php echo esc_url( home_url( '/hats' ) ); ?>">Shop caps</a>
 </div>
 
 <div class="headies-stat-grid">

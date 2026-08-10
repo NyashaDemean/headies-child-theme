@@ -17,9 +17,11 @@
         </a>
       </div>
 
-      <p class="footer-copyright">@HEADIES ALL RIGHTS RESERVED</p>
+      <p class="footer-pickup-note">We don't have a physical Headies store — order pickup is available at any Melusi Home Designs branch.</p>
 
-      <img class="footer-logo" src="<?php echo esc_url( get_stylesheet_directory_uri() . '/images/logo-solid-blue.png' ); ?>" alt="Headies">
+      <p class="footer-copyright">&copy; HEADIES ALL RIGHTS RESERVED</p>
+
+      <img class="footer-logo" src="<?php echo esc_url( get_stylesheet_directory_uri() . '/images/logos/logo-3d-blue-footer.png' ); ?>" alt="Headies">
     </div>
   </footer>
 

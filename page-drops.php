@@ -10,221 +10,126 @@ foreach ( $drops as $drop ) {
         $groups['upcoming'][] = $drop;
     }
 }
+
+$hero_drop = ! empty( $groups['upcoming'] ) ? $groups['upcoming'][0] : ( ! empty( $groups['past'] ) ? $groups['past'][0] : null );
+if ( $hero_drop ) {
+    $hero_image = $hero_drop['hero_image'] ? $hero_drop['hero_image'] : ( $hero_drop['main_image'] ? $hero_drop['main_image'] : $hero_drop['image'] );
+    $hero_link  = get_term_link( (int) $hero_drop['id'], 'product_drop' );
+    $hero_link  = is_wp_error( $hero_link ) ? '#' : $hero_link;
+}
 ?>
 
-<?php if ( ! empty( $groups['upcoming'] ) ) : ?>
-  <div class="drops-carousel" id="dropsCarousel">
-    <?php foreach ( $groups['upcoming'] as $i => $drop ) : ?>
-      <div class="drops-slide <?php echo $i === 0 ? 'active' : ''; ?>" data-slide="<?php echo esc_attr( $i ); ?>">
-        <div class="upcoming-drop-image">
-          <img src="<?php echo esc_url( $drop['image'] ); ?>" alt="<?php echo esc_attr( $drop['name'] ); ?>">
-        </div>
-        <div class="upcoming-drop-info">
-          <span class="upcoming-drop-countdown" data-dropdate="<?php echo esc_attr( $drop['drop_datetime'] ); ?>">Loading...</span>
-          <h2 class="upcoming-drop-name"><?php echo esc_html( $drop['name'] ); ?></h2>
-          <p class="upcoming-drop-desc"><?php echo esc_html( $drop['desc'] ); ?></p>
-          <?php $drop_link = get_term_link( (int) $drop['id'], 'product_drop' ); ?>
-          <a href="<?php echo esc_url( is_wp_error( $drop_link ) ? '#' : $drop_link ); ?>" class="upcoming-drop-cta">Shop Now</a>
-        </div>
-      </div>
-    <?php endforeach; ?>
-
-    <?php if ( count( $groups['upcoming'] ) > 1 ) : ?>
-      <div class="drops-carousel-dots">
-        <?php foreach ( $groups['upcoming'] as $i => $drop ) : ?>
-          <button class="drops-dot <?php echo $i === 0 ? 'active' : ''; ?>" data-goto="<?php echo esc_attr( $i ); ?>" aria-label="Go to slide <?php echo esc_attr( $i + 1 ); ?>"></button>
-        <?php endforeach; ?>
-      </div>
-    <?php endif; ?>
-  </div>
+<?php if ( $hero_drop ) : ?>
+  <section class="drops-hero" style="background-image: url('<?php echo esc_url( $hero_image ); ?>');">
+    <div class="drops-hero-content">
+      <h1 class="drops-hero-name"><?php echo esc_html( $hero_drop['name'] ); ?></h1>
+      <a href="<?php echo esc_url( $hero_link ); ?>" class="headies-shop-cta">See Details</a>
+    </div>
+  </section>
 <?php endif; ?>
 
 <div class="drops-page">
-  <h1>Drops</h1>
-  <p class="drops-intro">Everyday caps are always in the shop. These are the occasional limited customization runs — see what's live, what's next, and what's already sold out.</p>
 
-  <?php if ( ! empty( $groups['past'] ) ) : ?>
-    <h2 class="drops-section-title">Past Drops</h2>
-    <div class="past-drops-scroll">
-      <?php foreach ( $groups['past'] as $drop ) : ?>
-        <?php $drop_link = get_term_link( (int) $drop['id'], 'product_drop' ); ?>
-        <a href="<?php echo esc_url( is_wp_error( $drop_link ) ? '#' : $drop_link ); ?>" class="past-drop-card">
-          <div class="past-drop-image">
-            <img src="<?php echo esc_url( $drop['image'] ); ?>" alt="<?php echo esc_attr( $drop['name'] ); ?>">
-          </div>
-          <h3 class="past-drop-name"><?php echo esc_html( $drop['name'] ); ?></h3>
-          <span class="past-drop-date"><?php echo esc_html( $drop['date'] ); ?></span>
-        </a>
-      <?php endforeach; ?>
-    </div>
-  <?php endif; ?>
+  <h2 class="drops-section-title">Upcoming Drops</h2>
+  <div class="drop-article-grid">
+    <?php foreach ( $groups['upcoming'] as $drop ) : headies_render_drop_card( $drop ); endforeach; ?>
+  </div>
+
+  <h2 class="drops-section-title">Past Drops</h2>
+  <div class="drop-article-grid">
+    <?php foreach ( $groups['past'] as $drop ) : headies_render_drop_card( $drop ); endforeach; ?>
+  </div>
+
 </div>
 
 <style>
-.drops-page{ background:#ffffff; padding: 0 40px 40px; }
-.drops-page h1{
-  font-family: 'Cleo Folk', Georgia, serif;
-  font-size: 34px; font-weight: 800; text-transform: uppercase;
-  letter-spacing: 0.03em; color:#111; padding: 34px 0 12px;
+/* Force nav transparent over the hero, same treatment as the Hats page. */
+body .headies-nav:not(.nav-scrolled):not(:hover){
+  background: transparent !important;
 }
-.drops-intro{
-  font-family: 'Nunito', sans-serif; font-size:15px; color:#444;
-  max-width:640px; padding-bottom: 30px;
+body .headies-nav:not(.nav-scrolled):not(:hover) .nav-links a,
+body .headies-nav:not(.nav-scrolled):not(:hover) .nav-icon{
+  color: #fff !important;
 }
-
-.drops-carousel{ position:relative; width:100%; aspect-ratio: 16/9; overflow:hidden; }
-.drops-slide{
-  position:absolute; inset:0; width:100%; height:100%;
-  display:flex; align-items:flex-end;
-  opacity:0; visibility:hidden; transition: opacity .6s ease;
-  z-index:1;
+body .headies-nav:not(.nav-scrolled):not(:hover) .nav-logo .logo-default{
+  display: block !important;
 }
-.drops-slide.active{ opacity:1; visibility:visible; z-index:2; }
-
-.upcoming-drop-image{
-  position:absolute; inset:0; width:100%; height:100%; z-index:1;
-}
-.upcoming-drop-image img{ width:100%; height:100%; object-fit:cover; }
-.drops-slide::after{
-  content:""; position:absolute; inset:0; z-index:2;
-  background: linear-gradient(180deg, rgba(0,0,0,0) 40%, rgba(0,0,0,0.75) 100%);
-}
-.upcoming-drop-info{
-  position:relative; z-index:3; padding: 40px 50px;
-}
-.upcoming-drop-countdown{
-  font-family: 'Nunito', sans-serif; font-size:12px; font-weight:700;
-  text-transform:uppercase; letter-spacing:0.1em; color:#41AAF5;
-}
-.upcoming-drop-countdown.is-live{ color:#4ADE80; }
-.upcoming-drop-name{
-  font-family: 'Cleo Folk', Georgia, serif; font-size:38px;
-  text-transform:uppercase; margin:10px 0 14px; color:#fff;
-}
-.upcoming-drop-desc{
-  font-family: 'Nunito', sans-serif; font-size:15px; color:#eee;
-  max-width:480px; margin-bottom:24px;
-}
-.upcoming-drop-cta{
-  display:inline-block; background:#41AAF5; color:#111;
-  padding:14px 40px; font-size:13px; font-weight:800; letter-spacing:0.05em;
-  text-decoration:none; border-radius:4px;
-  transition: background .15s ease;
-}
-.upcoming-drop-cta:hover{ background:#2359A9; color:#fff; }
-
-.drops-carousel-dots{
-  position:absolute; bottom:20px; right:30px; z-index:4;
-  display:flex; gap:10px;
-}
-.drops-dot{
-  width:10px; height:10px; border-radius:50%; border:none;
-  background:rgba(255,255,255,0.4); cursor:pointer; padding:0;
-  transition: background .2s ease;
-}
-.drops-dot.active{ background:#fff; }
-
-@media (max-width: 800px){
-  .drops-carousel{ aspect-ratio: 4/5; }
-  .upcoming-drop-name{ font-size:28px; }
+body .headies-nav:not(.nav-scrolled):not(:hover) .nav-logo .logo-hover{
+  display: none !important;
 }
 
+.drops-hero{
+  position: relative;
+  width: 100%; min-height: 90vh;
+  background-size: cover; background-position: center;
+  display: flex; align-items: flex-end; justify-content: flex-end;
+}
+.drops-hero::before{
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(0deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0) 45%);
+}
+.drops-hero-content{
+  position: relative; z-index: 1;
+  max-width: 480px; padding: 56px;
+  text-align: right;
+}
+.drops-hero-name{
+  font-family: 'Cleo Folk', Georgia, serif; font-size: 50px; text-transform: uppercase;
+  color: #fff; margin: 0 0 16px; line-height: 1.05;
+}
+.drops-page{ background: #fff; padding: 0 16px 40px; }
 .drops-section-title{
-  font-family: 'Cleo Folk', Georgia, serif; font-size:24px;
-  text-transform:uppercase; color:#111; margin-bottom:20px;
+  font-family: 'Cleo Folk', Georgia, serif;
+  font-size: 56px; text-transform: uppercase; color: #111;
+  margin: 64px 0 24px; padding: 0 16px;
 }
-.past-drops-scroll{
-  display:flex; gap:0; overflow-x:auto; border-top:1px solid #e7e7e7;
-  border-left:1px solid #e7e7e7; scroll-behavior:smooth;
+
+.drop-article-grid{
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
 }
-.past-drop-card{
-  flex: 0 0 33.333%; min-width:260px;
-  border-right:1px solid #e7e7e7; border-bottom:1px solid #e7e7e7;
-  padding:16px 16px 20px; text-decoration:none; color:inherit;
+.drop-article-card{
+  position: relative; display: block;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border-radius: 8px;
+  text-decoration: none;
 }
-.past-drop-image{
-  width:100%; aspect-ratio: 1/1; overflow:hidden; background:#f4f4f4;
+.drop-article-card__image{ position: absolute; inset: 0; background: #f2f2f2; }
+.drop-article-card__image img{ width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .4s ease; }
+.drop-article-card:hover .drop-article-card__image img{ transform: scale(1.04); }
+.drop-article-card::after{
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(0deg, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0) 40%);
+  pointer-events: none;
 }
-.past-drop-image img{
-  width:100%; height:100%; object-fit:cover; transition: transform .3s ease;
+.drop-article-card__date{
+  position: absolute; top: 8px; right: 8px; z-index: 2;
+  background: var(--headies-accent); color: #0b2a4a;
+  font-family: 'Nunito', sans-serif; font-size: 12px; font-weight: 800;
+  padding: 4px 12px; border-radius: 4px;
 }
-.past-drop-card:hover .past-drop-image img{ transform: scale(1.04); }
-.past-drop-name{
-  font-family: 'Nunito', sans-serif; font-size:13.5px; font-weight:700;
-  text-transform:uppercase; letter-spacing:0.02em; color:#111; margin:14px 0 4px;
+.drop-article-card__content{
+  position: absolute; z-index: 2; bottom: 20px; left: 0; width: 100%;
+  padding: 0 16px;
+  display: flex; align-items: flex-end; justify-content: space-between; gap: 12px;
 }
-.past-drop-date{
-  font-family: 'Nunito', sans-serif; font-size:12px; color:#777;
+.drop-article-card__name{
+  font-family: 'Nunito', sans-serif; font-size: 18px; font-weight: 800; color: #fff;
 }
+.drop-article-card__arrow{ width: 20px; height: auto; color: #fff; flex: none; }
 
 @media (max-width: 900px){
-  .past-drop-card{ flex: 0 0 60%; }
+  .drops-hero{ min-height: 70vh; }
+  .drops-hero-content{ padding: 32px 24px; max-width: 100%; }
+  .drops-hero-name{ font-size: 34px; }
+  .drops-section-title{ font-size: 34px; margin: 44px 0 18px; }
+  .drop-article-grid{ grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 500px){
+  .drop-article-grid{ grid-template-columns: 1fr; }
 }
 </style>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  // Countdown timers (run for every slide, even hidden ones)
-  var countdownEls = document.querySelectorAll('.upcoming-drop-countdown');
-  countdownEls.forEach(function(el) {
-    var target = new Date(el.getAttribute('data-dropdate').replace(' ', 'T')).getTime();
-    function pad(n) { return n < 10 ? '0' + n : n; }
-    var timer = setInterval(update, 1000);
-    update();
-    function update() {
-      var now = new Date().getTime();
-      var diff = target - now;
-      if (diff <= 0) {
-        el.textContent = 'OUT NOW';
-        el.classList.add('is-live');
-        clearInterval(timer);
-        return;
-      }
-      var days = Math.floor(diff / 86400000);
-      var hours = Math.floor((diff % 86400000) / 3600000);
-      var mins = Math.floor((diff % 3600000) / 60000);
-      var secs = Math.floor((diff % 60000) / 1000);
-      el.textContent = days > 0
-        ? 'DROPS IN ' + days + 'd ' + pad(hours) + ':' + pad(mins) + ':' + pad(secs)
-        : 'DROPS IN ' + pad(hours) + ':' + pad(mins) + ':' + pad(secs);
-    }
-  });
-
-  // Carousel logic
-  var carousel = document.getElementById('dropsCarousel');
-  if (!carousel) return;
-  var slides = carousel.querySelectorAll('.drops-slide');
-  var dots = carousel.querySelectorAll('.drops-dot');
-  if (slides.length <= 1) return;
-
-  var current = 0;
-  function goTo(index) {
-    slides[current].classList.remove('active');
-    dots[current] && dots[current].classList.remove('active');
-    current = index;
-    slides[current].classList.add('active');
-    dots[current] && dots[current].classList.add('active');
-  }
-
-  dots.forEach(function(dot) {
-    dot.addEventListener('click', function() {
-      goTo(parseInt(dot.getAttribute('data-goto'), 10));
-      resetAutoplay();
-    });
-  });
-
-  var autoplay = setInterval(function() {
-    goTo((current + 1) % slides.length);
-  }, 6000);
-
-  function resetAutoplay() {
-    clearInterval(autoplay);
-    autoplay = setInterval(function() {
-      goTo((current + 1) % slides.length);
-    }, 6000);
-  }
-});
-</script>
-
 <?php get_footer(); ?>
-

@@ -1,46 +1,89 @@
 <?php get_header(); ?>
 
-<?php $headies_drops = headies_get_drops(); ?>
+<?php
+$headies_drops = headies_get_drops();
 
-<section class="headies-hero" style="background-image: url('<?php echo esc_url( get_stylesheet_directory_uri() . '/images/hero-cap.jpg' ); ?>');">
+$headies_featured_drop = null;
+$headies_trending_drop = null;
+foreach ( $headies_drops as $headies_drop_row ) {
+	if ( 'ivory-league' === $headies_drop_row['slug'] || 'the-ivory-league' === $headies_drop_row['slug'] ) {
+		$headies_featured_drop = $headies_drop_row;
+	}
+	if ( 'under-the-green' === $headies_drop_row['slug'] ) {
+		$headies_trending_drop = $headies_drop_row;
+	}
+}
+if ( ! $headies_featured_drop && ! empty( $headies_drops ) ) {
+	$headies_featured_drop = $headies_drops[0];
+}
+if ( ! $headies_trending_drop && ! empty( $headies_drops ) ) {
+	$headies_trending_drop = $headies_drops[0];
+}
+
+$headies_home_drop_image_id  = get_option( 'headies_home_drop_image_id' );
+$headies_featured_banner_img = $headies_home_drop_image_id ? wp_get_attachment_image_url( $headies_home_drop_image_id, 'full' ) : '';
+?>
+
+<section class="headies-hero">
+  <video class="hero-video" autoplay muted loop playsinline preload="auto" poster="<?php echo esc_url( get_stylesheet_directory_uri() . '/images/hero-cap.jpg' ); ?>">
+    <source src="<?php echo esc_url( get_stylesheet_directory_uri() . '/images/final-home-page.mp4' ); ?>" type="video/mp4">
+  </video>
   <div class="hero-overlay">
-    <h1>Good caps, always. Great ones, sometimes.</h1>
-    <p>Reliable everyday headwear you can grab anytime. Bedazzled and floral customizations drop occasionally — worth the wait.</p>
-    <a href="<?php echo esc_url( home_url( '/hats' ) ); ?>" class="hero-cta">Shop caps</a>
+    <h1>Exclusive wear.</h1>
+    <a href="<?php echo esc_url( home_url( '/hats' ) ); ?>" class="headies-shop-cta">Shop now</a>
   </div>
 </section>
 
-<section class="recent-collections">
-  <h2>Recent Collections</h2>
+<section class="drops-section">
+
+  <?php if ( $headies_featured_drop ) :
+    $headies_featured_link = get_term_link( (int) $headies_featured_drop['id'], 'product_drop' );
+    $headies_featured_link = is_wp_error( $headies_featured_link ) ? '#' : $headies_featured_link;
+    $headies_featured_bg   = $headies_featured_banner_img ? $headies_featured_banner_img : $headies_featured_drop['main_image'];
+  ?>
+    <a href="<?php echo esc_url( $headies_featured_link ); ?>" class="featured-drop">
+      <div class="featured-drop-info">
+        <span class="featured-drop-eyebrow"><?php echo esc_html( 'upcoming' === $headies_featured_drop['status'] ? 'Upcoming Drop' : 'Now Available' ); ?></span>
+        <h3 class="featured-drop-name"><?php echo esc_html( $headies_featured_drop['name'] ); ?></h3>
+        <p class="featured-drop-desc"><?php echo esc_html( ( $headies_featured_drop['tagline'] ? $headies_featured_drop['tagline'] : $headies_featured_drop['desc'] ) . ' — ' . $headies_featured_drop['date'] . '.' ); ?></p>
+        <span class="headies-shop-cta">View Drop</span>
+      </div>
+      <div class="featured-drop-image">
+        <img src="<?php echo esc_url( $headies_featured_bg ); ?>" alt="<?php echo esc_attr( $headies_featured_drop['name'] ); ?>">
+      </div>
+    </a>
+  <?php endif; ?>
+
+  <h2>Drops</h2>
+
   <div class="collections-grid">
-    <?php
-    $headies_recent = array_slice( $headies_drops, 0, 4 );
-    foreach ( $headies_recent as $drop ) :
-      $collection_image = ! empty( $drop['image'] ) ? $drop['image'] : get_stylesheet_directory_uri() . '/images/hero-cap.jpg';
+    <?php foreach ( $headies_drops as $drop ) :
+      $collection_image = ! empty( $drop['main_image'] ) ? $drop['main_image'] : ( ! empty( $drop['image'] ) ? $drop['image'] : get_stylesheet_directory_uri() . '/images/hero-cap.jpg' );
+      $drop_link         = get_term_link( (int) $drop['id'], 'product_drop' );
     ?>
-      <?php $drop_link = get_term_link( (int) $drop['id'], 'product_drop' ); ?>
       <a href="<?php echo esc_url( is_wp_error( $drop_link ) ? '#' : $drop_link ); ?>" class="collection-card">
         <div class="collection-image">
-    	  <img src="<?php echo esc_url( $collection_image ); ?>" alt="<?php echo esc_attr( $drop['name'] ); ?>">
+          <img src="<?php echo esc_url( $collection_image ); ?>" alt="<?php echo esc_attr( $drop['name'] ); ?>">
         </div>
         <p class="collection-name"><?php echo esc_html( $drop['name'] ); ?></p>
+        <p class="collection-date"><?php echo esc_html( $drop['date'] ); ?></p>
       </a>
     <?php endforeach; ?>
   </div>
 </section>
 
-<?php
-$trending_image = ( ! empty( $headies_drops[0]['image'] ) )
-  ? $headies_drops[0]['image']
-  : get_stylesheet_directory_uri() . '/images/hero-cap.jpg';
+<?php if ( $headies_trending_drop ) :
+  $headies_trending_image = ! empty( $headies_trending_drop['hero_image'] ) ? $headies_trending_drop['hero_image'] : ( ! empty( $headies_trending_drop['main_image'] ) ? $headies_trending_drop['main_image'] : get_stylesheet_directory_uri() . '/images/hero-cap.jpg' );
+  $headies_trending_link  = get_term_link( (int) $headies_trending_drop['id'], 'product_drop' );
+  $headies_trending_link  = is_wp_error( $headies_trending_link ) ? home_url( '/hats' ) : $headies_trending_link;
 ?>
-<section class="trending-now" style="background-image: url('<?php echo esc_url( $trending_image ); ?>');">
+<section class="trending-now" style="background-image: url('<?php echo esc_url( $headies_trending_image ); ?>');">
   <h2 class="trending-heading">Trending Now</h2>
   <div class="trending-info">
-    <p class="trending-drop-name"><?php echo esc_html( $headies_drops[0]['name'] ?? '' ); ?></p>
-    <a href="<?php echo esc_url( home_url( '/hats' ) ); ?>" class="trending-cta">Shop Now</a>
+    <p class="trending-drop-name"><?php echo esc_html( $headies_trending_drop['name'] ); ?></p>
+    <a href="<?php echo esc_url( $headies_trending_link ); ?>" class="headies-shop-cta">Shop Now</a>
   </div>
 </section>
+<?php endif; ?>
 
 <?php get_footer(); ?>
-

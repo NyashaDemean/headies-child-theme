@@ -100,6 +100,9 @@ document.addEventListener( 'DOMContentLoaded', function () {
 				}
 				addAllButton.disabled = false;
 				addAllButton.textContent = 'Add All to Cart';
+			} ).catch( function () {
+				addAllButton.disabled = false;
+				addAllButton.textContent = 'Add All to Cart';
 			} );
 		} );
 	}

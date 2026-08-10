@@ -9,11 +9,28 @@ function headies_enqueue_styles() {
 }
 add_action( 'wp_enqueue_scripts', 'headies_enqueue_styles' );
 
+// Restrict front-end search to products. Deliberately done here via
+// pre_get_posts rather than a `post_type=product` hidden field on the
+// search form — setting post_type in the query string itself makes
+// WordPress flag the request as is_post_type_archive('product') too,
+// which makes WooCommerce's template loader force archive-product.php
+// (the plain shop template) instead of search.php. pre_get_posts runs
+// after those flags are already resolved, so search.php still wins.
+function headies_search_only_products( $query ) {
+    if ( ! is_admin() && $query->is_main_query() && $query->is_search() ) {
+        $query->set( 'post_type', 'product' );
+    }
+}
+add_action( 'pre_get_posts', 'headies_search_only_products' );
+
 // Storefront shows its default blog sidebar on every ordinary Page whenever
 // the "Blog Sidebar" widget area has widgets in it. My Account isn't a blog
 // page, so drop the sidebar there and let the content area go full width.
 function headies_remove_account_sidebar() {
-    if ( function_exists( 'is_account_page' ) && is_account_page() ) {
+    if ( ( function_exists( 'is_account_page' ) && is_account_page() )
+        || ( function_exists( 'is_cart' ) && is_cart() )
+        || ( function_exists( 'is_checkout' ) && is_checkout() )
+        || is_product() ) {
         remove_action( 'storefront_sidebar', 'storefront_get_sidebar', 10 );
         add_filter( 'body_class', 'headies_account_full_width_body_class' );
     }
@@ -22,7 +39,11 @@ add_action( 'wp', 'headies_remove_account_sidebar' );
 
 function headies_account_full_width_body_class( $classes ) {
     $classes[] = 'storefront-full-width-content';
-    if ( ! is_user_logged_in() ) {
+    // This class drives the split-screen login/register layout (see the
+    // "LOGIN (split-screen)" rules in style.css) — it must only fire on the
+    // actual My Account page, not on Cart/Checkout/Product for guests, which
+    // also run through this same sidebar-removal filter.
+    if ( is_account_page() && ! is_user_logged_in() ) {
         $classes[] = 'woocommerce-account-login';
     }
     return $classes;
@@ -62,6 +83,71 @@ function headies_save_registration_name_fields( $customer_id ) {
 }
 add_action( 'woocommerce_created_customer', 'headies_save_registration_name_fields' );
 
+/**
+ * Auto-derive a drop's status ('upcoming' | 'live' | 'past') and a display
+ * date label from its drop_datetime / drop_end_datetime term meta. Shared by
+ * headies_get_drops() and any product card that needs to know whether the
+ * drop it belongs to is out yet (badge text, Add to Cart gating).
+ */
+function headies_get_drop_status( $term_id ) {
+    $start_raw = get_term_meta( $term_id, 'drop_datetime', true );
+    $end_raw   = get_term_meta( $term_id, 'drop_end_datetime', true );
+
+    $start_ts = $start_raw ? strtotime( $start_raw ) : 0;
+    $end_ts   = $end_raw ? strtotime( $end_raw ) : 0;
+    $now      = current_time( 'timestamp' );
+
+    if ( $start_ts && $now < $start_ts ) {
+        $status     = 'upcoming';
+        $date_label = 'Drops ' . date_i18n( 'F j, Y', $start_ts );
+    } elseif ( $end_ts && $now > $end_ts ) {
+        $status     = 'past';
+        $date_label = 'Dropped ' . date_i18n( 'F Y', $start_ts );
+    } else {
+        $status     = 'live';
+        $date_label = 'Available now';
+    }
+
+    return array(
+        'status'        => $status,
+        'date'          => $date_label,
+        // Compact MM.DD.YY badge date, matching the Drops page card design.
+        'date_short'    => $start_ts ? date_i18n( 'm.d.y', $start_ts ) : '',
+        'drop_datetime' => $start_raw,
+    );
+}
+
+/**
+ * Assemble the full display array (dates, status, every image role, both
+ * description fields) for one drop term. Shared by headies_get_drops() and
+ * the single-drop page, which only needs one term.
+ */
+function headies_build_drop_array( $term ) {
+    $status_info   = headies_get_drop_status( $term->term_id );
+    $image_id      = get_term_meta( $term->term_id, 'drop_image_id', true );
+    $main_image_id = get_term_meta( $term->term_id, 'drop_main_image_id', true );
+    $hero_image_id = get_term_meta( $term->term_id, 'drop_hero_image_id', true );
+
+    return array(
+        'id'            => $term->term_id,
+        'slug'          => $term->slug,
+        'name'          => $term->name,
+        'desc'          => $term->description,
+        'tagline'       => get_term_meta( $term->term_id, 'drop_tagline', true ),
+        'full_desc'     => get_term_meta( $term->term_id, 'drop_full_description', true ),
+        'status'        => $status_info['status'],
+        'date'          => $status_info['date'],
+        'date_short'    => $status_info['date_short'],
+        'drop_datetime' => $status_info['drop_datetime'],
+        'image'         => $image_id ? wp_get_attachment_image_url( $image_id, 'full' ) : '',
+        'image_id'      => $image_id,
+        'main_image'    => $main_image_id ? wp_get_attachment_image_url( $main_image_id, 'full' ) : '',
+        'main_image_id' => $main_image_id,
+        'hero_image'    => $hero_image_id ? wp_get_attachment_image_url( $hero_image_id, 'full' ) : '',
+        'hero_image_id' => $hero_image_id,
+    );
+}
+
 function headies_get_drops() {
     $terms = get_terms( array(
         'taxonomy'   => 'product_drop',
@@ -72,52 +158,36 @@ function headies_get_drops() {
         return array();
     }
 
-    $now = current_time( 'timestamp' );
-    $drops = array();
+    return array_map( 'headies_build_drop_array', $terms );
+}
 
-    foreach ( $terms as $term ) {
-        $start_raw = get_term_meta( $term->term_id, 'drop_datetime', true );
-        $end_raw   = get_term_meta( $term->term_id, 'drop_end_datetime', true );
-        $image_id  = get_term_meta( $term->term_id, 'drop_image_id', true );
-
-        $start_ts = $start_raw ? strtotime( $start_raw ) : 0;
-        $end_ts   = $end_raw ? strtotime( $end_raw ) : 0;
-
-        // Auto-calculate status from dates
-        if ( $start_ts && $now < $start_ts ) {
-            $status = 'upcoming';
-            $date_label = 'Coming ' . date_i18n( 'F Y', $start_ts );
-        } elseif ( $end_ts && $now > $end_ts ) {
-            $status = 'past';
-            $date_label = 'Dropped ' . date_i18n( 'F Y', $start_ts );
-        } else {
-            $status = 'live';
-            $date_label = 'Available now';
-        }
-	$image_url = $image_id ? wp_get_attachment_image_url( $image_id, 'full' ) : '';
-
-
-        $drops[] = array(
-            'id'            => $term->term_id,
-            'slug'          => $term->slug,
-            'name'          => $term->name,
-            'desc'          => $term->description,
-            'status'        => $status,
-            'date'          => $date_label,
-            'drop_datetime' => $start_raw,
-            'image'         => $image_url,
-            'image_id'      => $image_id,
-        );
+/**
+ * The drop (term) a product belongs to, or null. Products can only carry one
+ * drop at a time in this catalog, so the first term is authoritative.
+ */
+function headies_get_product_drop( $product_id ) {
+    $terms = get_the_terms( $product_id, 'product_drop' );
+    if ( ! $terms || is_wp_error( $terms ) ) {
+        return null;
     }
-
-    return $drops;
+    $term          = $terms[0];
+    $status_info   = headies_get_drop_status( $term->term_id );
+    $term->status  = $status_info['status'];
+    $term->date    = $status_info['date'];
+    return $term;
 }
 
 
 function headies_nav_scroll_script() {
+    $ajax_url    = admin_url( 'admin-ajax.php' );
+    $search_nonce = wp_create_nonce( 'headies_live_search' );
     ?>
     <script>
     document.addEventListener('DOMContentLoaded', function() {
+        var headiesSearchAjax = {
+            ajaxUrl: '<?php echo esc_js( $ajax_url ); ?>',
+            nonce: '<?php echo esc_js( $search_nonce ); ?>'
+        };
         var nav = document.getElementById('masthead');
         if (!nav) return;
         function checkScroll() {
@@ -129,6 +199,140 @@ function headies_nav_scroll_script() {
         }
         window.addEventListener('scroll', checkScroll);
         checkScroll();
+
+        // --- Mobile menu toggle ---
+        var hamburger = nav.querySelector( '.nav-hamburger' );
+        var navLinks  = nav.querySelector( '.nav-links' );
+        if ( hamburger && navLinks ) {
+            hamburger.addEventListener( 'click', function () {
+                var isOpen = navLinks.classList.toggle( 'is-open' );
+                hamburger.setAttribute( 'aria-expanded', isOpen ? 'true' : 'false' );
+            } );
+            document.addEventListener( 'click', function ( e ) {
+                if ( ! navLinks.classList.contains( 'is-open' ) ) {
+                    return;
+                }
+                if ( navLinks.contains( e.target ) || hamburger.contains( e.target ) ) {
+                    return;
+                }
+                navLinks.classList.remove( 'is-open' );
+                hamburger.setAttribute( 'aria-expanded', 'false' );
+            } );
+            document.addEventListener( 'keydown', function ( e ) {
+                if ( 'Escape' === e.key && navLinks.classList.contains( 'is-open' ) ) {
+                    navLinks.classList.remove( 'is-open' );
+                    hamburger.setAttribute( 'aria-expanded', 'false' );
+                }
+            } );
+        }
+
+        // --- Search toggle ---
+        var searchToggle = nav.querySelector( '.nav-search-toggle' );
+        var searchBar     = nav.querySelector( '.nav-search-bar' );
+        var searchField   = searchBar ? searchBar.querySelector( '.search-field' ) : null;
+        if ( ! searchToggle || ! searchBar ) {
+            return;
+        }
+
+        function openSearch() {
+            searchBar.classList.add( 'is-open' );
+            searchToggle.setAttribute( 'aria-expanded', 'true' );
+            if ( searchField ) {
+                window.setTimeout( function () { searchField.focus(); }, 150 );
+            }
+        }
+        function closeSearch() {
+            searchBar.classList.remove( 'is-open' );
+            searchToggle.setAttribute( 'aria-expanded', 'false' );
+            var results = searchBar.querySelector( '.nav-search-results' );
+            if ( results ) {
+                results.hidden = true;
+                var grid = results.querySelector( '.nav-search-results-grid' );
+                if ( grid ) {
+                    grid.innerHTML = '';
+                }
+            }
+            if ( searchField ) {
+                searchField.value = '';
+            }
+        }
+
+        searchToggle.setAttribute( 'aria-expanded', 'false' );
+        searchToggle.addEventListener( 'click', function ( e ) {
+            e.preventDefault();
+            if ( searchBar.classList.contains( 'is-open' ) ) {
+                closeSearch();
+            } else {
+                openSearch();
+            }
+        } );
+
+        document.addEventListener( 'click', function ( e ) {
+            if ( ! searchBar.classList.contains( 'is-open' ) ) {
+                return;
+            }
+            if ( searchBar.contains( e.target ) || searchToggle.contains( e.target ) ) {
+                return;
+            }
+            closeSearch();
+        } );
+
+        document.addEventListener( 'keydown', function ( e ) {
+            if ( 'Escape' === e.key && searchBar.classList.contains( 'is-open' ) ) {
+                closeSearch();
+            }
+        } );
+
+        // --- Live search-as-you-type ---
+        var resultsWrap = searchBar.querySelector( '.nav-search-results' );
+        var resultsGrid = resultsWrap ? resultsWrap.querySelector( '.nav-search-results-grid' ) : null;
+        var viewAllLink = resultsWrap ? resultsWrap.querySelector( '.nav-search-view-all' ) : null;
+        var searchDebounce;
+
+        function hideResults() {
+            if ( ! resultsWrap ) {
+                return;
+            }
+            resultsWrap.hidden = true;
+            resultsGrid.innerHTML = '';
+        }
+
+        if ( searchField && resultsWrap && resultsGrid ) {
+            searchField.addEventListener( 'input', function () {
+                var term = searchField.value.trim();
+                window.clearTimeout( searchDebounce );
+
+                if ( ! term ) {
+                    hideResults();
+                    return;
+                }
+
+                searchDebounce = window.setTimeout( function () {
+                    var formData = new FormData();
+                    formData.append( 'action', 'headies_live_search' );
+                    formData.append( 'nonce', headiesSearchAjax.nonce );
+                    formData.append( 'term', term );
+
+                    fetch( headiesSearchAjax.ajaxUrl, { method: 'POST', body: formData } )
+                        .then( function ( res ) { return res.json(); } )
+                        .then( function ( data ) {
+                            if ( ! data.success || term !== searchField.value.trim() ) {
+                                return;
+                            }
+                            if ( data.data.count > 0 ) {
+                                resultsGrid.innerHTML = data.data.html;
+                                if ( viewAllLink ) {
+                                    viewAllLink.href = '<?php echo esc_js( home_url( '/' ) ); ?>?s=' + encodeURIComponent( term );
+                                }
+                                resultsWrap.hidden = false;
+                            } else {
+                                hideResults();
+                            }
+                        } )
+                        .catch( function () { hideResults(); } );
+                }, 250 );
+            } );
+        }
     });
     </script>
     <?php
@@ -165,9 +369,29 @@ function headies_drop_add_fields() {
         <p>When this drop becomes "past." Leave blank to stay live indefinitely.</p>
     </div>
     <div class="form-field">
-        <label for="drop_image_id">Drop Image (Attachment ID)</label>
+        <label for="drop_image_id">Banner Image (Attachment ID)</label>
         <input type="number" name="drop_image_id" id="drop_image_id">
-        <p>Upload the image to Media Library first, then paste its Attachment ID here.</p>
+        <p>Full-bleed image for the Drops page "upcoming" carousel. Upload to Media Library first, then paste its Attachment ID here.</p>
+    </div>
+    <div class="form-field">
+        <label for="drop_main_image_id">Card Image (Attachment ID)</label>
+        <input type="number" name="drop_main_image_id" id="drop_main_image_id">
+        <p>Used for the homepage Drops row and the Past Drops thumbnail on the Drops page.</p>
+    </div>
+    <div class="form-field">
+        <label for="drop_hero_image_id">Detail Page Hero (Attachment ID)</label>
+        <input type="number" name="drop_hero_image_id" id="drop_hero_image_id">
+        <p>Hero photo shown at the top of this drop's own page.</p>
+    </div>
+    <div class="form-field">
+        <label for="drop_tagline">Tagline</label>
+        <input type="text" name="drop_tagline" id="drop_tagline">
+        <p>Short line shown under the drop name on its own page (the taxonomy Description field above is the short blurb used on the homepage carousel).</p>
+    </div>
+    <div class="form-field">
+        <label for="drop_full_description">Full Description</label>
+        <textarea name="drop_full_description" id="drop_full_description" rows="5" cols="40"></textarea>
+        <p>Longer write-up shown on this drop's own page.</p>
     </div>
     <?php
 }
@@ -178,6 +402,10 @@ function headies_drop_edit_fields( $term ) {
     $drop_datetime     = get_term_meta( $term->term_id, 'drop_datetime', true );
     $drop_end_datetime = get_term_meta( $term->term_id, 'drop_end_datetime', true );
     $drop_image_id     = get_term_meta( $term->term_id, 'drop_image_id', true );
+    $drop_main_image_id = get_term_meta( $term->term_id, 'drop_main_image_id', true );
+    $drop_hero_image_id = get_term_meta( $term->term_id, 'drop_hero_image_id', true );
+    $drop_tagline       = get_term_meta( $term->term_id, 'drop_tagline', true );
+    $drop_full_description = get_term_meta( $term->term_id, 'drop_full_description', true );
     ?>
     <tr class="form-field">
         <th><label for="drop_datetime">Drop Start Date/Time</label></th>
@@ -188,8 +416,29 @@ function headies_drop_edit_fields( $term ) {
         <td><input type="text" name="drop_end_datetime" id="drop_end_datetime" value="<?php echo esc_attr( $drop_end_datetime ); ?>" placeholder="2026-08-22 10:00:00"></td>
     </tr>
     <tr class="form-field">
-        <th><label for="drop_image_id">Drop Image (Attachment ID)</label></th>
-        <td><input type="number" name="drop_image_id" id="drop_image_id" value="<?php echo esc_attr( $drop_image_id ); ?>"></td>
+        <th><label for="drop_image_id">Banner Image (Attachment ID)</label></th>
+        <td><input type="number" name="drop_image_id" id="drop_image_id" value="<?php echo esc_attr( $drop_image_id ); ?>">
+        <p>Full-bleed image for the Drops page "upcoming" carousel.</p></td>
+    </tr>
+    <tr class="form-field">
+        <th><label for="drop_main_image_id">Card Image (Attachment ID)</label></th>
+        <td><input type="number" name="drop_main_image_id" id="drop_main_image_id" value="<?php echo esc_attr( $drop_main_image_id ); ?>">
+        <p>Homepage Drops row + Past Drops thumbnail.</p></td>
+    </tr>
+    <tr class="form-field">
+        <th><label for="drop_hero_image_id">Detail Page Hero (Attachment ID)</label></th>
+        <td><input type="number" name="drop_hero_image_id" id="drop_hero_image_id" value="<?php echo esc_attr( $drop_hero_image_id ); ?>">
+        <p>Hero photo on this drop's own page.</p></td>
+    </tr>
+    <tr class="form-field">
+        <th><label for="drop_tagline">Tagline</label></th>
+        <td><input type="text" name="drop_tagline" id="drop_tagline" value="<?php echo esc_attr( $drop_tagline ); ?>">
+        <p>Short line shown under the drop name on its own page.</p></td>
+    </tr>
+    <tr class="form-field">
+        <th><label for="drop_full_description">Full Description</label></th>
+        <td><textarea name="drop_full_description" id="drop_full_description" rows="5" cols="40"><?php echo esc_textarea( $drop_full_description ); ?></textarea>
+        <p>Longer write-up shown on this drop's own page.</p></td>
     </tr>
     <?php
 }
@@ -206,11 +455,28 @@ function headies_save_drop_fields( $term_id ) {
     if ( isset( $_POST['drop_image_id'] ) ) {
         update_term_meta( $term_id, 'drop_image_id', absint( $_POST['drop_image_id'] ) );
     }
+    if ( isset( $_POST['drop_main_image_id'] ) ) {
+        update_term_meta( $term_id, 'drop_main_image_id', absint( $_POST['drop_main_image_id'] ) );
+    }
+    if ( isset( $_POST['drop_hero_image_id'] ) ) {
+        update_term_meta( $term_id, 'drop_hero_image_id', absint( $_POST['drop_hero_image_id'] ) );
+    }
+    if ( isset( $_POST['drop_tagline'] ) ) {
+        update_term_meta( $term_id, 'drop_tagline', sanitize_text_field( $_POST['drop_tagline'] ) );
+    }
+    if ( isset( $_POST['drop_full_description'] ) ) {
+        update_term_meta( $term_id, 'drop_full_description', sanitize_textarea_field( $_POST['drop_full_description'] ) );
+    }
 }
 add_action( 'created_product_drop', 'headies_save_drop_fields' );
 add_action( 'edited_product_drop', 'headies_save_drop_fields' );
 
 add_action( 'wp_footer', 'headies_nav_scroll_script' );
+
+// The sticky "added to bag" bar markup lives inline in
+// woocommerce/content-single-product.php (so it sits next to the related
+// products it needs `wc_get_cart_url()` etc. from); js/single-product.js
+// fills it in and reveals it after a successful AJAX add-to-cart.
 
 // ===== WISHLIST =====
 // Logged-in customers get their wishlist stored on the account (user meta);
@@ -314,6 +580,253 @@ function headies_enqueue_wishlist_script() {
 }
 add_action( 'wp_enqueue_scripts', 'headies_enqueue_wishlist_script' );
 
+/**
+ * Shared product card — the Hats grid, Accessories grid, Search results,
+ * and (with hide_info) the pre-drop reveal grid on a drop's own page all
+ * render through this one component so they stay visually identical.
+ *
+ * $args:
+ *   hide_info (bool) — omit the name/price row entirely (the "mystery"
+ *   treatment used for a not-yet-live drop's own page).
+ */
+function headies_render_hats_card( $product_id, $args = array() ) {
+    $product = wc_get_product( $product_id );
+    if ( ! $product ) {
+        return;
+    }
+    $hide_info = ! empty( $args['hide_info'] );
+
+    $gallery_ids = $product->get_gallery_image_ids();
+    $back_image  = ! empty( $gallery_ids ) ? wp_get_attachment_image_url( $gallery_ids[0], 'woocommerce_single' ) : '';
+    $front_image = get_the_post_thumbnail_url( $product_id, 'woocommerce_single' );
+
+    $drop         = headies_get_product_drop( $product_id );
+    $badge_label  = 'New';
+    $badge_class  = 'hats-badge';
+    if ( $drop ) {
+        if ( 'upcoming' === $drop->status ) {
+            $badge_label = 'Coming Soon';
+            $badge_class = 'hats-badge hats-badge--soon';
+        } else {
+            $badge_label = 'Exclusive';
+            $badge_class = 'hats-badge hats-badge--exclusive';
+        }
+    }
+    ?>
+    <div class="hats-card">
+      <a href="<?php echo esc_url( get_permalink( $product_id ) ); ?>" class="hats-card-image">
+        <span class="<?php echo esc_attr( $badge_class ); ?>"><?php echo esc_html( $badge_label ); ?></span>
+        <img class="hats-img-front" src="<?php echo esc_url( $front_image ); ?>" alt="<?php echo esc_attr( $product->get_name() ); ?>">
+        <?php if ( $back_image ) : ?>
+          <img class="hats-img-back" src="<?php echo esc_url( $back_image ); ?>" alt="<?php echo esc_attr( $product->get_name() ); ?> underbrim">
+        <?php endif; ?>
+      </a>
+      <?php headies_wishlist_button( $product_id ); ?>
+
+      <?php if ( ! $hide_info ) : ?>
+        <div class="hats-card-info">
+          <span class="hats-name"><?php echo esc_html( $product->get_name() ); ?></span>
+          <span class="hats-price"><?php echo wc_price( $product->get_price() ); ?></span>
+        </div>
+      <?php endif; ?>
+    </div>
+    <?php
+}
+
+/**
+ * Drop card for the /drops page — matches Hat Club's drops-archive design:
+ * a single full-bleed image (no border/gap treatment), a date pill top-right,
+ * and the drop name + arrow overlaid bottom-left on a dark gradient. Used
+ * identically for both the Upcoming and Past grids.
+ */
+function headies_render_drop_card( $drop ) {
+    $link  = get_term_link( (int) $drop['id'], 'product_drop' );
+    $link  = is_wp_error( $link ) ? '#' : $link;
+    $image = $drop['main_image'] ? $drop['main_image'] : $drop['image'];
+    ?>
+    <a href="<?php echo esc_url( $link ); ?>" class="drop-article-card">
+        <?php if ( $drop['date_short'] ) : ?>
+            <span class="drop-article-card__date"><?php echo esc_html( $drop['date_short'] ); ?></span>
+        <?php endif; ?>
+        <div class="drop-article-card__image">
+            <img src="<?php echo esc_url( $image ); ?>" alt="<?php echo esc_attr( $drop['name'] ); ?>" loading="lazy">
+        </div>
+        <div class="drop-article-card__content">
+            <span class="drop-article-card__name"><?php echo esc_html( $drop['name'] ); ?></span>
+            <svg class="drop-article-card__arrow" viewBox="0 0 25 18" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M24.0607 8.96042L15.1002 0L14.103 0.997233L21.4265 8.32077L0 8.32076V9.73106L21.2955 9.73107L14.103 16.9236L15.1002 17.9208L24.0607 8.96042Z" fill="currentColor"/></svg>
+        </div>
+    </a>
+    <?php
+}
+
+function headies_get_products_by_cat_query( $cat_slug, $paged ) {
+    return new WP_Query( array(
+        'post_type'      => 'product',
+        'posts_per_page' => 8,
+        'paged'          => $paged,
+        'tax_query'      => array(
+            array(
+                'taxonomy' => 'product_cat',
+                'field'    => 'slug',
+                'terms'    => $cat_slug,
+            ),
+        ),
+    ) );
+}
+
+function headies_get_hats_query( $paged ) {
+    return headies_get_products_by_cat_query( 'hats', $paged );
+}
+
+function headies_get_accessories_query( $paged ) {
+    return headies_get_products_by_cat_query( 'accessories', $paged );
+}
+
+function headies_get_search_hats_query( $search_term, $paged ) {
+    return new WP_Query( array(
+        's'              => $search_term,
+        'post_type'      => 'product',
+        'posts_per_page' => 8,
+        'paged'          => $paged,
+    ) );
+}
+
+function headies_enqueue_hats_script() {
+    if ( ! is_page_template( 'page-hats.php' ) && ! is_page_template( 'page-accessories.php' ) && ! is_search() ) {
+        return;
+    }
+    $path = get_stylesheet_directory() . '/js/hats.js';
+    wp_enqueue_script( 'headies-hats', get_stylesheet_directory_uri() . '/js/hats.js', array(), file_exists( $path ) ? filemtime( $path ) : false, true );
+    wp_localize_script( 'headies-hats', 'headiesHats', array(
+        'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+        'nonce'   => wp_create_nonce( 'headies_load_more_hats' ),
+    ) );
+}
+add_action( 'wp_enqueue_scripts', 'headies_enqueue_hats_script' );
+
+function headies_ajax_load_more_hats() {
+    check_ajax_referer( 'headies_load_more_hats', 'nonce' );
+
+    $paged      = isset( $_POST['page'] ) ? absint( $_POST['page'] ) : 1;
+    $hats_query = headies_get_hats_query( $paged );
+
+    ob_start();
+    if ( $hats_query->have_posts() ) {
+        while ( $hats_query->have_posts() ) {
+            $hats_query->the_post();
+            headies_render_hats_card( get_the_ID() );
+        }
+    }
+    wp_reset_postdata();
+    $html = ob_get_clean();
+
+    wp_send_json_success( array(
+        'html'      => $html,
+        'maxPages'  => (int) $hats_query->max_num_pages,
+    ) );
+}
+add_action( 'wp_ajax_headies_load_more_hats', 'headies_ajax_load_more_hats' );
+add_action( 'wp_ajax_nopriv_headies_load_more_hats', 'headies_ajax_load_more_hats' );
+
+function headies_ajax_load_more_accessories() {
+    check_ajax_referer( 'headies_load_more_hats', 'nonce' );
+
+    $paged              = isset( $_POST['page'] ) ? absint( $_POST['page'] ) : 1;
+    $accessories_query  = headies_get_accessories_query( $paged );
+
+    ob_start();
+    if ( $accessories_query->have_posts() ) {
+        while ( $accessories_query->have_posts() ) {
+            $accessories_query->the_post();
+            headies_render_hats_card( get_the_ID() );
+        }
+    }
+    wp_reset_postdata();
+    $html = ob_get_clean();
+
+    wp_send_json_success( array(
+        'html'      => $html,
+        'maxPages'  => (int) $accessories_query->max_num_pages,
+    ) );
+}
+add_action( 'wp_ajax_headies_load_more_accessories', 'headies_ajax_load_more_accessories' );
+add_action( 'wp_ajax_nopriv_headies_load_more_accessories', 'headies_ajax_load_more_accessories' );
+
+function headies_ajax_load_more_search() {
+    check_ajax_referer( 'headies_load_more_hats', 'nonce' );
+
+    $paged        = isset( $_POST['page'] ) ? absint( $_POST['page'] ) : 1;
+    $search_term  = isset( $_POST['search'] ) ? sanitize_text_field( wp_unslash( $_POST['search'] ) ) : '';
+    $search_query = headies_get_search_hats_query( $search_term, $paged );
+
+    ob_start();
+    if ( $search_query->have_posts() ) {
+        while ( $search_query->have_posts() ) {
+            $search_query->the_post();
+            headies_render_hats_card( get_the_ID() );
+        }
+    }
+    wp_reset_postdata();
+    $html = ob_get_clean();
+
+    wp_send_json_success( array(
+        'html'      => $html,
+        'maxPages'  => (int) $search_query->max_num_pages,
+    ) );
+}
+add_action( 'wp_ajax_headies_load_more_search', 'headies_ajax_load_more_search' );
+add_action( 'wp_ajax_nopriv_headies_load_more_search', 'headies_ajax_load_more_search' );
+
+function headies_highlight_match( $text, $term ) {
+    $term = trim( $term );
+    $safe_text = esc_html( $text );
+    if ( '' === $term ) {
+        return $safe_text;
+    }
+    $pattern = '/' . preg_quote( esc_html( $term ), '/' ) . '/i';
+    return preg_replace( $pattern, '<mark>$0</mark>', $safe_text );
+}
+
+function headies_ajax_live_search() {
+    check_ajax_referer( 'headies_live_search', 'nonce' );
+
+    $term = isset( $_POST['term'] ) ? sanitize_text_field( wp_unslash( $_POST['term'] ) ) : '';
+
+    if ( '' === $term ) {
+        wp_send_json_success( array( 'html' => '', 'count' => 0 ) );
+    }
+
+    $query = new WP_Query( array(
+        's'              => $term,
+        'post_type'      => 'product',
+        'posts_per_page' => 4,
+    ) );
+
+    ob_start();
+    if ( $query->have_posts() ) {
+        while ( $query->have_posts() ) {
+            $query->the_post();
+            global $product;
+            ?>
+            <a href="<?php the_permalink(); ?>" class="nav-search-result">
+                <div class="nav-search-result-image"><?php echo get_the_post_thumbnail( get_the_ID(), 'thumbnail' ); ?></div>
+                <span class="nav-search-result-name"><?php echo wp_kses_post( headies_highlight_match( get_the_title(), $term ) ); ?></span>
+                <span class="nav-search-result-price"><?php echo wp_kses_post( wc_price( $product->get_price() ) ); ?></span>
+            </a>
+            <?php
+        }
+    }
+    wp_reset_postdata();
+    $html = ob_get_clean();
+
+    wp_send_json_success( array(
+        'html'  => $html,
+        'count' => (int) $query->found_posts,
+    ) );
+}
+add_action( 'wp_ajax_headies_live_search', 'headies_ajax_live_search' );
+add_action( 'wp_ajax_nopriv_headies_live_search', 'headies_ajax_live_search' );
+
 function headies_ajax_toggle_wishlist() {
     check_ajax_referer( 'headies_wishlist', 'nonce' );
     $product_id = isset( $_POST['product_id'] ) ? absint( $_POST['product_id'] ) : 0;
@@ -331,11 +844,17 @@ add_action( 'wp_ajax_nopriv_headies_toggle_wishlist', 'headies_ajax_toggle_wishl
 function headies_ajax_add_to_cart() {
     check_ajax_referer( 'headies_wishlist', 'nonce' );
     $product_id = isset( $_POST['product_id'] ) ? absint( $_POST['product_id'] ) : 0;
-    if ( ! $product_id || ! WC()->cart || ! WC()->cart->add_to_cart( $product_id ) ) {
+    $quantity   = isset( $_POST['quantity'] ) ? wc_stock_amount( wp_unslash( $_POST['quantity'] ) ) : 1;
+    if ( ! $product_id || ! WC()->cart || ! WC()->cart->add_to_cart( $product_id, $quantity ) ) {
         wp_send_json_error();
     }
+    $product = wc_get_product( $product_id );
     wp_send_json_success( array(
-        'cart_count' => WC()->cart->get_cart_contents_count(),
+        'cart_count'   => WC()->cart->get_cart_contents_count(),
+        'product_name' => $product ? $product->get_name() : '',
+        'product_image' => $product ? wp_get_attachment_image_url( $product->get_image_id(), 'thumbnail' ) : '',
+        'line_total'   => $product ? wp_strip_all_tags( wc_price( $product->get_price() * $quantity ) ) : '',
+        'quantity'     => $quantity,
     ) );
 }
 add_action( 'wp_ajax_headies_add_to_cart', 'headies_ajax_add_to_cart' );
@@ -356,4 +875,405 @@ function headies_ajax_add_all_wishlist_to_cart() {
 }
 add_action( 'wp_ajax_headies_add_all_wishlist_to_cart', 'headies_ajax_add_all_wishlist_to_cart' );
 add_action( 'wp_ajax_nopriv_headies_add_all_wishlist_to_cart', 'headies_ajax_add_all_wishlist_to_cart' );
+
+function headies_add_to_bag_text() {
+    return __( 'Add to Bag', 'headies' );
+}
+add_filter( 'woocommerce_product_single_add_to_cart_text', 'headies_add_to_bag_text' );
+
+// ===== CART & CHECKOUT =====
+
+// Keep the cart sidebar to just the order summary — no cross-sell upsells.
+remove_action( 'woocommerce_cart_collaterals', 'woocommerce_cross_sell_display', 10 );
+
+// WooCommerce core always renders its own default, unstyled order-details
+// table on the woocommerce_thankyou action — our custom thankyou.php already
+// shows the same info in the styled summary/sidebar cards, so drop the
+// duplicate. (Leaving woocommerce_thankyou itself firing for other plugins.)
+remove_action( 'woocommerce_thankyou', 'woocommerce_order_details_table', 10 );
+
+// The cart page already has a promo-code field, so drop the default
+// "Have a coupon?" prompt at the top of checkout — it's redundant clutter.
+remove_action( 'woocommerce_before_checkout_form', 'woocommerce_checkout_coupon_form', 10 );
+
+// Zimbabwe has no province list in WooCommerce core, so the "Province" field
+// falls back to a plain text box. Add one so it renders as a dropdown.
+function headies_add_zw_states( $states ) {
+    $states['ZW'] = array(
+        'HA' => 'Harare',
+        'BU' => 'Bulawayo',
+        'MA' => 'Manicaland',
+        'MC' => 'Mashonaland Central',
+        'ME' => 'Mashonaland East',
+        'MW' => 'Mashonaland West',
+        'MV' => 'Masvingo',
+        'MN' => 'Matabeleland North',
+        'MS' => 'Matabeleland South',
+        'MI' => 'Midlands',
+    );
+    return $states;
+}
+add_filter( 'woocommerce_states', 'headies_add_zw_states' );
+
+// We only deliver within Zimbabwe, so there's no need to ask for a separate
+// shipping address — billing address doubles as the delivery address.
+add_filter( 'pre_option_woocommerce_ship_to_destination', function () {
+    return 'billing_only';
+} );
+
+// Pickup happens at Melusi Home Designs' physical stores — keep the branch
+// list in one place so the checkout field and order displays stay in sync.
+function headies_get_pickup_locations() {
+    return array(
+        'eastlea'   => array(
+            'name'    => 'Eastlea Branch',
+            'address' => '232 Samora Machel, opposite Water World',
+            'phone'   => '+263 78 014 37800',
+        ),
+        'town'      => array(
+            'name'    => 'Town Branch (cnr First St & Samora)',
+            'address' => 'Melusi Home Designs, opposite NMB Bank',
+            'phone'   => '0771 490 402',
+        ),
+        'belgravia' => array(
+            'name'    => 'Belgravia Branch',
+            'address' => '36 East Road',
+            'phone'   => '+263 78 695 2265',
+        ),
+    );
+}
+
+// Reduce the checkout form to what we actually need: contact details and a
+// Zimbabwe-shaped delivery address. Country is fixed to ZW (hidden field,
+// still posted so shipping-zone matching and order data stay correct).
+function headies_customize_checkout_fields( $fields ) {
+    $fields['billing']['billing_first_name']['priority'] = 10;
+    $fields['billing']['billing_last_name']['priority']  = 20;
+    $fields['billing']['billing_email']['priority']      = 30;
+    $fields['billing']['billing_phone']['priority']      = 40;
+    $fields['billing']['billing_phone']['description']   = 'Used for delivery updates and payment confirmation.';
+
+    unset( $fields['billing']['billing_company'] );
+    unset( $fields['billing']['billing_postcode'] );
+
+    $fields['billing']['billing_country']['type']     = 'hidden';
+    $fields['billing']['billing_country']['default']  = 'ZW';
+    $fields['billing']['billing_country']['required'] = false;
+
+    $fields['billing']['billing_address_1']['label']       = 'Street Address';
+    $fields['billing']['billing_address_1']['placeholder'] = 'House number and street name';
+    $fields['billing']['billing_address_1']['priority']    = 50;
+    $fields['billing']['billing_address_1']['class']       = array( 'form-row-wide' );
+
+    $fields['billing']['billing_address_2']['label']       = 'Suburb';
+    $fields['billing']['billing_address_2']['placeholder'] = '';
+    $fields['billing']['billing_address_2']['required']    = true;
+    $fields['billing']['billing_address_2']['priority']    = 60;
+    $fields['billing']['billing_address_2']['class']       = array( 'form-row-wide' );
+
+    $fields['billing']['billing_city']['label']    = 'City';
+    $fields['billing']['billing_city']['priority'] = 70;
+    $fields['billing']['billing_city']['class']    = array( 'form-row-first' );
+
+    $fields['billing']['billing_state']['label']    = 'Province';
+    $fields['billing']['billing_state']['priority'] = 80;
+    $fields['billing']['billing_state']['class']    = array( 'form-row-last' );
+
+    if ( isset( $fields['order']['order_comments'] ) ) {
+        $fields['order']['order_comments']['label']       = 'Message (optional)';
+        $fields['order']['order_comments']['placeholder']  = 'Gate code, landmark, or a note for the rider.';
+    }
+
+    return $fields;
+}
+add_filter( 'woocommerce_checkout_fields', 'headies_customize_checkout_fields' );
+
+add_filter( 'default_checkout_billing_state', function () {
+    return 'HA';
+} );
+
+// --- Pickup location field (shown only when Collect In Store is chosen) ---
+function headies_pickup_location_field() {
+    $locations = headies_get_pickup_locations();
+    ?>
+    <div class="headies-pickup-field" style="display:none;">
+        <p class="form-row form-row-wide">
+            <label for="headies_pickup_location">Pickup Branch <span class="required">*</span></label>
+            <select name="headies_pickup_location" id="headies_pickup_location" class="select">
+                <option value="">Choose a branch&hellip;</option>
+                <?php foreach ( $locations as $key => $loc ) : ?>
+                    <option value="<?php echo esc_attr( $loc['name'] ); ?>"><?php echo esc_html( $loc['name'] . ' — ' . $loc['address'] . ' — ' . $loc['phone'] ); ?></option>
+                <?php endforeach; ?>
+            </select>
+        </p>
+    </div>
+    <?php
+}
+// Rendered directly from woocommerce/checkout/form-billing.php's Delivery
+// section (next to the delivery-method radios), not via a hook — see that
+// template for why.
+
+// WC_Checkout builds its cached fields array (and applies
+// woocommerce_checkout_fields) the moment WC()->checkout() is first touched
+// in a request — which happens before process_checkout() has saved this
+// same submission's shipping-method choice to the session. So on the
+// checkout POST itself, session state is one step behind; trust the
+// just-submitted $_POST first and only fall back to session for plain page
+// renders (GET requests, before any shipping_method has been posted).
+function headies_is_pickup_chosen() {
+    if ( isset( $_POST['shipping_method'] ) && is_array( $_POST['shipping_method'] ) ) {
+        foreach ( $_POST['shipping_method'] as $method ) {
+            if ( is_string( $method ) && 0 === strpos( $method, 'local_pickup' ) ) {
+                return true;
+            }
+        }
+        return false;
+    }
+    $chosen = WC()->session ? WC()->session->get( 'chosen_shipping_methods' ) : array();
+    if ( is_array( $chosen ) ) {
+        foreach ( $chosen as $method ) {
+            if ( 0 === strpos( $method, 'local_pickup' ) ) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+// Collect In Store needs no delivery address, so don't require one — the
+// fields are also hidden client-side (see js/checkout.js).
+function headies_relax_delivery_address_when_pickup( $fields ) {
+    if ( ! headies_is_pickup_chosen() ) {
+        return $fields;
+    }
+    foreach ( array( 'billing_address_1', 'billing_address_2', 'billing_city', 'billing_state' ) as $key ) {
+        if ( isset( $fields['billing'][ $key ] ) ) {
+            $fields['billing'][ $key ]['required'] = false;
+        }
+    }
+    return $fields;
+}
+add_filter( 'woocommerce_checkout_fields', 'headies_relax_delivery_address_when_pickup', 20 );
+
+function headies_validate_pickup_location( $data, $errors ) {
+    if ( headies_is_pickup_chosen() && empty( $_POST['headies_pickup_location'] ) ) {
+        $errors->add( 'validation', 'Please choose a pickup branch.' );
+    }
+}
+add_action( 'woocommerce_after_checkout_validation', 'headies_validate_pickup_location', 10, 2 );
+
+function headies_save_pickup_location( $order, $data ) {
+    if ( ! empty( $_POST['headies_pickup_location'] ) ) {
+        $order->update_meta_data( '_headies_pickup_location', sanitize_text_field( wp_unslash( $_POST['headies_pickup_location'] ) ) );
+    }
+}
+add_action( 'woocommerce_checkout_create_order', 'headies_save_pickup_location', 10, 2 );
+
+function headies_admin_show_pickup_location( $order ) {
+    $loc = $order->get_meta( '_headies_pickup_location' );
+    if ( $loc ) {
+        echo '<p><strong>Pickup Branch:</strong> ' . esc_html( $loc ) . '</p>';
+    }
+}
+add_action( 'woocommerce_admin_order_data_after_shipping_address', 'headies_admin_show_pickup_location' );
+
+// woocommerce_order_details_table() is hooked to BOTH woocommerce_thankyou
+// and woocommerce_view_order in WC core (wc-template-hooks.php). We only
+// remove it from woocommerce_thankyou above (the custom thankyou.php shows
+// pickup info inline already), so this still needs to fire on the My
+// Account > Orders > View Order page, which uses woocommerce_view_order and
+// has no other pickup-branch display of its own.
+function headies_thankyou_show_pickup_location( $order ) {
+    $loc = $order->get_meta( '_headies_pickup_location' );
+    if ( $loc ) {
+        echo '<p class="headies-pickup-note"><strong>Pickup Branch:</strong> ' . esc_html( $loc ) . '</p>';
+    }
+}
+add_action( 'woocommerce_order_details_after_order_table', 'headies_thankyou_show_pickup_location' );
+
+function headies_email_pickup_location( $fields, $sent_to_admin, $order ) {
+    $loc = $order->get_meta( '_headies_pickup_location' );
+    if ( $loc ) {
+        $fields['pickup_location'] = array(
+            'label' => 'Pickup Branch',
+            'value' => $loc,
+        );
+    }
+    return $fields;
+}
+add_filter( 'woocommerce_email_order_meta_fields', 'headies_email_pickup_location', 10, 3 );
+
+// --- Shipping zone bootstrap (runs once) ---
+function headies_bootstrap_shipping_zone() {
+    if ( get_option( 'headies_shipping_bootstrap_v1' ) || ! class_exists( 'WC_Shipping_Zone' ) ) {
+        return;
+    }
+
+    $zone = new WC_Shipping_Zone();
+    $zone->set_zone_name( 'Zimbabwe' );
+    $zone->add_location( 'ZW', 'country' );
+    $zone->save();
+
+    $methods = array(
+        array(
+            'method_id' => 'flat_rate',
+            'title'     => 'Harare Courier',
+            'cost'      => '5',
+        ),
+        array(
+            'method_id' => 'flat_rate',
+            'title'     => 'Nationwide Courier',
+            'cost'      => '8',
+        ),
+        array(
+            'method_id' => 'local_pickup',
+            'title'     => 'Collect In Store',
+            'cost'      => '0',
+        ),
+    );
+
+    $local_pickup_instance_id = null;
+
+    foreach ( $methods as $method ) {
+        $instance_id = $zone->add_shipping_method( $method['method_id'] );
+        if ( ! $instance_id ) {
+            continue;
+        }
+        $option_key         = 'woocommerce_' . $method['method_id'] . '_' . $instance_id . '_settings';
+        $settings            = get_option( $option_key, array() );
+        $settings['title']  = $method['title'];
+        $settings['cost']   = $method['cost'];
+        $settings['enabled'] = 'yes';
+        update_option( $option_key, $settings );
+
+        if ( 'local_pickup' === $method['method_id'] ) {
+            $local_pickup_instance_id = $instance_id;
+        }
+    }
+
+    // "Pay at Pickup" (Cash on Delivery) only makes sense when collecting in-store.
+    if ( $local_pickup_instance_id ) {
+        $cod_settings                       = get_option( 'woocommerce_cod_settings', array() );
+        $cod_settings['enabled']            = 'yes';
+        $cod_settings['title']              = 'Pay at Pickup';
+        $cod_settings['description']        = 'Pay in cash or by card when you collect your order in-store.';
+        $cod_settings['enable_for_methods'] = array( 'local_pickup:' . $local_pickup_instance_id );
+        $cod_settings['enable_for_virtual'] = 'no';
+        update_option( 'woocommerce_cod_settings', $cod_settings );
+    }
+
+    update_option( 'headies_shipping_bootstrap_v1', 1 );
+}
+add_action( 'init', 'headies_bootstrap_shipping_zone' );
+
+// --- Paynow gateway ---
+// No live Paynow API credentials yet (see README). This collects the order
+// and puts it on hold pending manual payment confirmation via EcoCash,
+// OneMoney, ZimSwitch or card — swap process_payment() for a real Paynow
+// redirect once the account/API keys are in place.
+function headies_add_paynow_gateway( $gateways ) {
+    $gateways[] = 'Headies_Paynow_Gateway';
+    return $gateways;
+}
+add_filter( 'woocommerce_payment_gateways', 'headies_add_paynow_gateway' );
+
+function headies_init_paynow_gateway() {
+    if ( ! class_exists( 'WC_Payment_Gateway' ) || class_exists( 'Headies_Paynow_Gateway' ) ) {
+        return;
+    }
+
+    class Headies_Paynow_Gateway extends WC_Payment_Gateway {
+
+        public function __construct() {
+            $this->id                 = 'headies_paynow';
+            $this->has_fields         = false;
+            $this->method_title       = 'Paynow';
+            $this->method_description = 'Accepts EcoCash, OneMoney, ZimSwitch and card payments via Paynow.';
+
+            $this->init_form_fields();
+            $this->init_settings();
+
+            $this->title       = $this->get_option( 'title', 'Paynow' );
+            $this->description = $this->get_option( 'description', "Pay with EcoCash, OneMoney, ZimSwitch or Visa/Mastercard. We'll send a payment request to your phone or card after you place the order." );
+            $this->enabled     = $this->get_option( 'enabled', 'yes' );
+
+            add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_admin_options' ) );
+        }
+
+        public function init_form_fields() {
+            $this->form_fields = array(
+                'enabled'     => array(
+                    'title'   => 'Enable/Disable',
+                    'type'    => 'checkbox',
+                    'label'   => 'Enable Paynow',
+                    'default' => 'yes',
+                ),
+                'title'       => array(
+                    'title'   => 'Title',
+                    'type'    => 'text',
+                    'default' => 'Paynow',
+                ),
+                'description' => array(
+                    'title'   => 'Description',
+                    'type'    => 'textarea',
+                    'default' => "Pay with EcoCash, OneMoney, ZimSwitch or Visa/Mastercard. We'll send a payment request to your phone or card after you place the order.",
+                ),
+            );
+        }
+
+        public function process_payment( $order_id ) {
+            $order = wc_get_order( $order_id );
+            $order->update_status( 'on-hold', __( 'Awaiting Paynow payment confirmation.', 'headies' ) );
+
+            if ( function_exists( 'WC' ) && WC()->cart ) {
+                WC()->cart->empty_cart();
+            }
+
+            return array(
+                'result'   => 'success',
+                'redirect' => $this->get_return_url( $order ),
+            );
+        }
+    }
+}
+// Themes load after 'plugins_loaded' has already fired, so hook this to
+// 'init' instead — by then WooCommerce's autoloader has WC_Payment_Gateway
+// available regardless.
+add_action( 'init', 'headies_init_paynow_gateway' );
+
+// The delivery-method radios live in the main content column (form-billing.php),
+// outside the #order_review sidebar that WooCommerce's checkout AJAX normally
+// refreshes. Add them as their own fragment so they still update live when
+// the address changes, same as the order totals and payment methods do.
+function headies_delivery_methods_fragment( $fragments ) {
+    ob_start();
+    ?>
+    <div class="headies-delivery-methods-inner">
+        <?php if ( WC()->cart->needs_shipping() ) : ?>
+            <?php wc_cart_totals_shipping_html(); ?>
+        <?php endif; ?>
+    </div>
+    <?php
+    $fragments['.headies-delivery-methods-inner'] = ob_get_clean();
+    return $fragments;
+}
+add_filter( 'woocommerce_update_order_review_fragments', 'headies_delivery_methods_fragment' );
+
+function headies_enqueue_cart_checkout_scripts() {
+    if ( function_exists( 'is_cart' ) && is_cart() ) {
+        $path = get_stylesheet_directory() . '/js/cart.js';
+        wp_enqueue_script( 'headies-cart', get_stylesheet_directory_uri() . '/js/cart.js', array( 'jquery' ), file_exists( $path ) ? filemtime( $path ) : false, true );
+    }
+    if ( function_exists( 'is_checkout' ) && is_checkout() && ! is_wc_endpoint_url( 'order-received' ) ) {
+        $path = get_stylesheet_directory() . '/js/checkout.js';
+        wp_enqueue_script( 'headies-checkout', get_stylesheet_directory_uri() . '/js/checkout.js', array( 'jquery' ), file_exists( $path ) ? filemtime( $path ) : false, true );
+    }
+    if ( is_product() ) {
+        // Depends on 'headies-wishlist' (enqueued sitewide) for the
+        // headiesWishlist ajaxUrl/nonce object it reuses.
+        $path = get_stylesheet_directory() . '/js/single-product.js';
+        wp_enqueue_script( 'headies-single-product', get_stylesheet_directory_uri() . '/js/single-product.js', array( 'headies-wishlist' ), file_exists( $path ) ? filemtime( $path ) : false, true );
+    }
+}
+add_action( 'wp_enqueue_scripts', 'headies_enqueue_cart_checkout_scripts' );
 

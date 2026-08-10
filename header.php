@@ -17,6 +17,22 @@ foreach ( $headies_drops_bar as $d ) {
     if ( $d['status'] === 'live' ) { $headies_live_drop_bar = $d; break; }
 }
 ?>
+<?php if ( function_exists( 'is_checkout' ) && is_checkout() && ! is_wc_endpoint_url( 'order-received' ) ) : ?>
+<header id="masthead" class="headies-nav headies-nav--checkout">
+    <div class="nav-inner nav-inner--checkout">
+      <a href="<?php echo esc_url( wc_get_cart_url() ); ?>" class="headies-checkout-back">&larr; Back to Cart</a>
+      <div class="nav-logo">
+        <a href="<?php echo esc_url( home_url( '/' ) ); ?>">
+          <img src="<?php echo esc_url( get_stylesheet_directory_uri() . '/images/logos/logo-solid-blue.png' ); ?>" alt="Headies">
+        </a>
+      </div>
+      <span class="headies-checkout-secure">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+        Secure Checkout
+      </span>
+    </div>
+  </header>
+<?php else : ?>
 <header id="masthead" class="headies-nav">
   <?php if ( $headies_live_drop_bar ) : ?>
   <div class="drop-bar">
@@ -26,6 +42,10 @@ foreach ( $headies_drops_bar as $d ) {
 
     <div class="nav-inner">
 
+      <button type="button" class="nav-hamburger" aria-label="Menu" aria-expanded="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+
       <div class="nav-links">
         <a href="<?php echo esc_url( home_url( '/drops' ) ); ?>">Drops</a>
         <a href="<?php echo esc_url( home_url( '/hats' ) ); ?>">Hats</a>
@@ -34,8 +54,14 @@ foreach ( $headies_drops_bar as $d ) {
 
       <div class="nav-logo">
         <a href="<?php echo esc_url( home_url( '/' ) ); ?>">
-          <img class="logo-default" src="<?php echo esc_url( get_stylesheet_directory_uri() . '/images/logo-solid-white.png' ); ?>" alt="Headies">
-          <img class="logo-hover" src="<?php echo esc_url( get_stylesheet_directory_uri() . '/images/logo-solid-blue.png' ); ?>" alt="Headies">
+          <span class="nav-logo-wordmark">
+            <img class="logo-default" src="<?php echo esc_url( get_stylesheet_directory_uri() . '/images/logos/logo-solid-white.png' ); ?>" alt="Headies">
+            <img class="logo-hover" src="<?php echo esc_url( get_stylesheet_directory_uri() . '/images/logos/logo-solid-blue.png' ); ?>" alt="Headies">
+          </span>
+          <span class="nav-logo-icon">
+            <img class="logo-default" src="<?php echo esc_url( get_stylesheet_directory_uri() . '/images/logos/icon-cap-white.png' ); ?>" alt="Headies">
+            <img class="logo-hover" src="<?php echo esc_url( get_stylesheet_directory_uri() . '/images/logos/icon-cap-black.png' ); ?>" alt="Headies">
+          </span>
         </a>
       </div>
 
@@ -58,10 +84,15 @@ foreach ( $headies_drops_bar as $d ) {
 
       <div class="nav-search-bar">
         <?php echo get_search_form(); ?>
+        <div class="nav-search-results" hidden>
+          <div class="nav-search-results-grid"></div>
+          <a href="#" class="nav-search-view-all">View all results</a>
+        </div>
       </div>
 
     </div>
   </header>
+<?php endif; ?>
 
   <div id="content" class="site-content">
 

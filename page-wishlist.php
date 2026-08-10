@@ -80,7 +80,7 @@ if ( WC()->cart ) {
 
 		<div class="headies-empty">
 			<p>Your wishlist is empty — tap the heart on any cap to save it here.</p>
-			<a href="<?php echo esc_url( home_url( '/hats' ) ); ?>" class="headies-btn-primary">Shop Caps</a>
+			<a href="<?php echo esc_url( home_url( '/hats' ) ); ?>" class="headies-shop-cta">Shop Caps</a>
 		</div>
 
 	<?php endif; ?>

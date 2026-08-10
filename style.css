@@ -9,7 +9,7 @@ Text Domain: headies
 */
 
 :root {
-  --headies-primary: #2359A9;
+  --headies-primary: #12203A;
   --headies-accent: #41AAF5;
 }
 
@@ -20,7 +20,7 @@ Text Domain: headies
   font-style: normal;
 }
 
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
 
 body {
   font-family: 'Nunito', sans-serif;
@@ -35,35 +35,45 @@ button, .button {
 }
 
 .drop-bar {
-  background: #12203A;
+  background: var(--headies-primary);
   color: #fff;
   text-align: center;
-  padding: 8px;
-  font-size: 12px;
+  padding: 6px;
+  font-size: 11px;
   letter-spacing: 1px;
   font-weight: 700;
 }
 
 .headies-hero {
-  background-size: cover;
-  background-position: center 25%;
   min-height: 640px;
   position: relative;
   display: flex;
   align-items: flex-end;
+  overflow: hidden;
+}
+
+.hero-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 25%;
+  z-index: 0;
 }
 
 .headies-hero::before {
   content: "";
   position: absolute;
   inset: 0;
+  z-index: 0;
   background: linear-gradient(0deg, rgba(11,42,74,0.88) 0%, rgba(11,42,74,0.35) 55%, rgba(11,42,74,0) 100%);
 }
 
 .hero-overlay {
   position: relative;
   z-index: 1;
-  padding: 48px;
+  padding: 48px 48px 12px;
   max-width: 560px;
 }
 
@@ -79,15 +89,24 @@ button, .button {
   font-size: 15px;
 }
 
-.hero-cta {
+/* Shared round black "Shop Now"-style CTA — used across the hero,
+   trending section, drops carousel, wishlist, and empty cart. */
+.headies-shop-cta {
   display: inline-block;
-  background: var(--headies-accent);
-  color: #0b2a4a;
-  font-weight: 700;
-  padding: 14px 28px;
-  border-radius: 8px;
+  background: #111;
+  color: #fff;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800;
+  font-size: 15px;
+  padding: 16px 34px;
+  border-radius: 999px;
+  border: none;
   text-decoration: none;
+  cursor: pointer;
+  transition: background-color .2s ease, transform .15s ease;
 }
+.headies-shop-cta:hover { background: #000; color: #fff; transform: translateY(-1px); }
+.headies-shop-cta:active { transform: translateY(0); }
 
 @media (max-width: 700px) {
   .headies-hero {
@@ -111,7 +130,7 @@ button, .button {
   transition: background 0.3s ease;
 }
 .headies-nav .drop-bar {
-  background: #12203A;
+  background: var(--headies-primary);
   color: #fff;
 }
 
@@ -124,10 +143,24 @@ button, .button {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 24px 64px;
+  padding: 16px 64px;
   max-width: 1400px;
   margin: 0 auto;
 }
+
+.nav-hamburger {
+  display: none;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: #fff;
+  flex: 1;
+  transition: color 0.3s ease;
+}
+.nav-hamburger svg { width: 24px; height: 24px; }
+.headies-nav.nav-scrolled .nav-hamburger,
+.headies-nav:hover .nav-hamburger { color: #000; }
 
 .nav-links {
   display: flex;
@@ -156,18 +189,29 @@ button, .button {
 }
 
 .nav-logo img {
-  height: 42px;
+  height: 36px;
   width: auto;
 }
 
 .nav-logo .logo-default { display: block; }
-.nav-logo .logo-hover { display: none; }
+.nav-logo .logo-hover { display: none; filter: brightness(0); }
 
 .headies-nav.nav-scrolled .nav-logo .logo-default,
 .headies-nav:hover .nav-logo .logo-default { display: none; }
 
 .headies-nav.nav-scrolled .nav-logo .logo-hover,
 .headies-nav:hover .nav-logo .logo-hover { display: block; }
+
+/* Full wordmark on desktop; the compact cap icon on mobile, where the
+   wordmark crowds the hamburger/icons. The default/hover (transparent vs
+   solid nav) swap rules above apply the same either way — this just
+   controls which of the two PAIRS is visible. */
+.nav-logo-icon { display: none; }
+@media (max-width: 700px) {
+  .nav-logo-wordmark { display: none; }
+  .nav-logo-icon { display: block; }
+  .nav-logo-icon img { height: 30px; }
+}
 
 .nav-icons {
   display: flex;
@@ -213,29 +257,161 @@ button, .button {
 }
 
 .nav-search-bar {
-  display: none;
+  position: absolute;
+  top: 100%; left: 0; right: 0;
+  background: #fff;
+  border-top: 1px solid #eee;
+  box-shadow: 0 16px 28px rgba(0,0,0,.1);
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-height .3s ease, opacity .2s ease;
+}
+.nav-search-bar.is-open {
+  max-height: 540px;
+  opacity: 1;
+}
+.nav-search-form {
+  display: flex; align-items: center; gap: 10px;
+  max-width: 640px; margin: 26px auto 0;
+  background: #f5f5f5; border: 1px solid #ddd; border-radius: 999px;
+  padding: 6px 8px 6px 20px;
+}
+.nav-search-icon-btn {
+  flex: none; display: flex; align-items: center; justify-content: center;
+  width: 22px; height: 22px; background: none; border: none; padding: 0; cursor: pointer;
+  color: #777; transition: color .15s ease;
+}
+.nav-search-icon-btn svg { width: 20px; height: 20px; }
+.nav-search-icon-btn:hover { color: #111; }
+.nav-search-form .search-field {
+  flex: 1; border: none; outline: none;
+  background: transparent; padding: 12px 4px;
+  font-family: 'Nunito', sans-serif; font-size: 15px; color: #111;
+}
+.nav-search-form .search-field::placeholder { color: #888; }
+
+.nav-search-results {
+  max-width: 900px; margin: 22px auto 26px; padding: 0 64px;
+}
+.nav-search-results[hidden] { display: none; }
+.nav-search-results-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px;
+}
+.nav-search-result {
+  display: flex; flex-direction: column; gap: 8px;
+  text-decoration: none; color: #111;
+}
+.nav-search-result-image { aspect-ratio: 1 / 1; background: #f4f4f4; overflow: hidden; }
+.nav-search-result-image img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.nav-search-result-name {
+  font-family: 'Nunito', sans-serif; font-size: 12.5px; font-weight: 700; line-height: 1.35;
+}
+.nav-search-result-name mark {
+  background: #fde68a; color: inherit; padding: 0 1px; border-radius: 2px;
+}
+.nav-search-result-price {
+  font-family: 'Nunito', sans-serif; font-size: 12.5px; font-weight: 700; color: var(--headies-primary);
+}
+.nav-search-view-all {
+  display: inline-block; margin-top: 18px;
+  font-family: 'Nunito', sans-serif; font-size: 12px; font-weight: 800;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--headies-primary); text-decoration: none;
+}
+.nav-search-view-all:hover { text-decoration: underline; }
+
+@media (max-width: 700px) {
+  .nav-search-form { margin: 20px 20px 0; }
+  .nav-search-results { padding: 0 20px; }
+  .nav-search-results-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
 @media (max-width: 700px) {
-  .nav-links { display: none; }
+  .nav-hamburger { display: flex; align-items: center; }
+  .nav-links {
+    position: absolute;
+    top: 100%; left: 0; right: 0;
+    flex-direction: column;
+    gap: 0;
+    background: #fff;
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    box-shadow: 0 16px 28px rgba(0,0,0,.1);
+    transition: max-height .3s ease, opacity .2s ease;
+  }
+  .nav-links.is-open { max-height: 260px; opacity: 1; }
+  .nav-links a {
+    color: #111 !important;
+    padding: 16px 20px;
+    border-top: 1px solid #f0f0f0;
+  }
   .nav-inner { padding: 14px 20px; }
 }
-/* ===== RECENT COLLECTIONS ===== */
-.recent-collections {
+/* ===== DROPS (homepage) ===== */
+.drops-section {
   background: #fff;
   padding: 60px 40px 80px;
   text-align: center;
 }
 
-.recent-collections h2 {
+.drops-section h2 {
   font-size: 28px;
-  margin-bottom: 40px;
+  margin-bottom: 32px;
+}
+
+/* Featured drop — split banner (light text panel + product photo) matching
+   the New Era "Just Caps" reference, right under the hero. */
+.featured-drop {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: stretch;
+  max-width: 1400px;
+  min-height: 460px;
+  margin: 0 auto 50px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #f4f3f0;
+  text-decoration: none;
+}
+.featured-drop-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  text-align: left;
+  padding: 56px;
+}
+.featured-drop-eyebrow {
+  display: inline-block;
+  font-family: 'Nunito', sans-serif; font-size: 11px; font-weight: 800;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--headies-primary);
+  margin-bottom: 14px;
+}
+.featured-drop-name {
+  font-family: 'Cleo Folk', Georgia, serif; font-size: 44px; text-transform: uppercase;
+  margin: 0 0 16px; color: #111; line-height: 1.05;
+}
+.featured-drop-desc {
+  font-family: 'Nunito', sans-serif; font-size: 15px; color: #555;
+  margin: 0 0 28px; max-width: 420px;
+}
+.featured-drop-image {
+  width: 100%; height: 100%; min-height: 320px;
+  background: #eae8e3;
+  overflow: hidden;
+}
+.featured-drop-image img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .collections-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 24px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
   max-width: 1400px;
   margin: 0 auto;
 }
@@ -246,9 +422,9 @@ button, .button {
 
 .collection-image {
   width: 100%;
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 4 / 5;
   overflow: hidden;
-  border-radius: 6px;
+  border-radius: 8px;
   background: #f2f2f2;
 }
 
@@ -257,19 +433,30 @@ button, .button {
   height: 100%;
   object-fit: cover;
   display: block;
+  transition: transform .3s ease;
 }
+.collection-card:hover .collection-image img { transform: scale(1.04); }
 
 .collection-name {
-  margin-top: 12px;
-  font-size: 14px;
+  margin-top: 16px;
+  font-size: 17px;
   font-weight: 700;
   color: #12203A;
+}
+.collection-date {
+  margin-top: 4px;
+  font-size: 13px;
+  color: #8a8a8a;
 }
 
 @media (max-width: 900px) {
   .collections-grid {
     grid-template-columns: repeat(2, 1fr);
   }
+  .featured-drop { grid-template-columns: 1fr; min-height: 0; }
+  .featured-drop-info { padding: 36px 28px; }
+  .featured-drop-image { min-height: 280px; }
+  .featured-drop-name { font-size: 30px; }
 }
 
 @media (max-width: 500px) {
@@ -319,16 +506,6 @@ button, .button {
   margin: 0 0 12px;
 }
 
-.trending-cta {
-  display: inline-block;
-  background: #fff;
-  color: #000;
-  font-weight: 700;
-  padding: 12px 28px;
-  border-radius: 8px;
-  text-decoration: none;
-}
-
 @media (max-width: 700px) {
   .trending-now {
     min-height: 50vh;
@@ -367,6 +544,14 @@ button, .button {
   height: 22px;
 }
 
+.footer-pickup-note {
+  max-width: 480px;
+  margin: 0 auto 20px;
+  color: #8a8a8a;
+  font-size: 12.5px;
+  line-height: 1.6;
+}
+
 .footer-copyright {
   color: #8a8a8a;
   font-size: 13px;
@@ -375,8 +560,8 @@ button, .button {
 }
 
 .footer-logo {
-  height: 40px;
-  width: auto;
+  width: 320px;
+  height: auto;
   display: block;
   margin: 0 auto;
 }
@@ -388,148 +573,349 @@ button, .button {
 }
 
 
-.hats-icon-btn {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.85);
-  border: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
-  cursor: pointer;
+/* ===== PRODUCT GRID (shared by the Hats page and Search results) ===== */
+
+.hats-page { background: #ffffff; padding: 0; }
+.hats-page-header { padding: 34px 40px 18px; }
+.hats-page-header h1 {
+  font-family: 'Cleo Folk', Georgia, serif;
+  font-size: 34px; font-weight: 800; text-transform: uppercase;
+  letter-spacing: 0.03em; color: #111;
 }
 
-/* Full-bleed hats grid, LV-style */
+/* .headies-nav is position:fixed and ~112px tall at its tallest (mobile,
+   drop-bar showing), so search.php (no hero to sit behind it) needs that
+   much top clearance plus breathing room — same value used by the
+   product/account page headers. */
+.search-results-header { background: #f2f2f2; padding: 140px 64px 48px; margin-bottom: 10px; }
+.search-results-label {
+  margin: 0 0 8px; font-family: 'Nunito', sans-serif;
+  font-size: 20px; font-weight: 600; color: #666;
+}
+.search-results-term {
+  margin: 0; font-family: 'Nunito', sans-serif;
+  font-size: 56px; font-weight: 900; color: #111; letter-spacing: -0.01em;
+}
+@media (max-width: 700px) {
+  .search-results-header { padding: 140px 20px 32px; }
+  .search-results-term { font-size: 36px; }
+}
+
 .hats-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 0;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.hats-grid li.product,
-/* Hats grid redesign v2 — spaced grid, refined typography */
-.hats-grid {
-  display: grid !important;
-  grid-template-columns: repeat(3, 1fr) !important;
-  gap: 24px !important;
-  margin: 40px 0 0 !important;
-  padding: 0 !important;
-}
-
-.hats-grid li.product,
-.hats-name {
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: #1a1a1a;
-}
-
-.hats-price {
-  font-size: 14px;
-  font-weight: 700;
-  color: #1a1a1a;
-  white-space: nowrap;
-  margin-left: 12px;
-}
-
-/* Override Storefront's default li.product float/width so our grid controls layout */
-.hats-grid li.product,
-ul.products.hats-grid li.product {
-  float: none !important;
-  width: auto !important;
-  clear: none !important;
-  margin-right: 0 !important;
-}
-
-/* Hats grid redesign v3 — tight, bordered, dense like reference sites */
-.hats-grid {
-  grid-template-columns: repeat(4, 1fr) !important;
-  gap: 0 !important;
-  margin: 12px 0 0 !important;
-}
-
-.hats-grid li.product,
-.hats-grid li.product:nth-child(4n),
-/* Break hats-grid out of the theme's col-full side padding for true edge-to-edge */
-.hats-grid {
-  margin-left: -2.617924em !important;
-  margin-right: -2.617924em !important;
-  width: calc(100% + 5.235848em) !important;
-}
-
-/* ===== SINGLE PRODUCT PAGE ===== */
-.headies-product-layout {
-  display: flex;
-  gap: 64px;
-  align-items: flex-start;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px 28px;
   max-width: 1400px;
-  margin: 40px auto;
+  margin: 0 auto;
+  padding: 0 40px;
+}
+@media (max-width: 900px) {
+  .hats-grid { grid-template-columns: repeat(2, 1fr); gap: 24px 18px; padding: 0 20px; }
+}
+
+.hats-card-image {
+  position: relative; display: block;
+  width: 100%; aspect-ratio: 3 / 4; overflow: hidden; background: #f4f4f4;
+}
+.hats-card-image img {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: contain; transition: opacity .25s ease;
+}
+.hats-img-back { opacity: 0; }
+.hats-card:hover .hats-img-front { opacity: 0; }
+.hats-card:hover .hats-img-back { opacity: 1; }
+
+.hats-badge {
+  position: absolute; top: 10px; left: 10px; z-index: 3;
+  background: #111; color: #fff;
+  font-size: 10.5px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 6px 12px; border-radius: 999px;
+}
+.hats-badge--soon { background: var(--headies-accent); color: #0b2a4a; }
+.hats-badge--exclusive { background: var(--headies-primary); color: #fff; }
+
+.hats-card-info {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 14px 2px 0; font-size: 14px; font-family: 'Nunito', sans-serif;
+}
+.hats-name { font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em; max-width: 75%; line-height: 1.35; }
+.hats-price { font-weight: 700; color: #111; white-space: nowrap; }
+
+.hats-load-more-wrap { display: flex; justify-content: center; padding: 46px 0 30px; }
+.hats-load-more {
+  border: 1px solid #111; background: #fff; padding: 14px 46px;
+  font-size: 12px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase;
+  text-decoration: none; color: #111; display: inline-block; cursor: pointer;
+  transition: background .15s ease, color .15s ease, border-color .15s ease;
+}
+.hats-load-more:hover { background: var(--headies-primary); color: #fff; border-color: var(--headies-primary); }
+
+/* Search results has no hero banner, so the nav should default to solid
+   like every other hero-less page (single-product, cart, checkout, account). */
+body.search .headies-nav:not(.nav-scrolled):not(:hover) { background: #fff; }
+body.search .headies-nav:not(.nav-scrolled):not(:hover) .nav-links a,
+body.search .headies-nav:not(.nav-scrolled):not(:hover) .nav-icon { color: #000; }
+body.search .headies-nav:not(.nav-scrolled):not(:hover) .nav-logo .logo-default { display: none; }
+body.search .headies-nav:not(.nav-scrolled):not(:hover) .nav-logo .logo-hover { display: block; }
+
+/* ===== SINGLE PRODUCT (Headies) ===== */
+
+body.single-product .headies-nav:not(.nav-scrolled):not(:hover) { background: #fff; }
+body.single-product .headies-nav:not(.nav-scrolled):not(:hover) .nav-links a,
+body.single-product .headies-nav:not(.nav-scrolled):not(:hover) .nav-icon { color: #000; }
+body.single-product .headies-nav:not(.nav-scrolled):not(:hover) .nav-logo .logo-default { display: none; }
+body.single-product .headies-nav:not(.nav-scrolled):not(:hover) .nav-logo .logo-hover { display: block; }
+
+.headies-product-crumbs {
+  /* .headies-nav is position:fixed and ~112px tall at its tallest (mobile,
+     drop-bar showing) — this page uses the normal (non-checkout) nav, so it
+     needs the same top clearance as Cart/Account/Confirmation. */
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 140px 40px 0;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #8a8a8a;
+}
+.headies-product-crumbs a { color: #8a8a8a; text-decoration: none; }
+.headies-product-crumbs a:hover { color: var(--headies-primary); }
+
+.headies-product-layout {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 64px;
+  align-items: start;
+  max-width: 1400px;
+  margin: 24px auto 0;
   padding: 0 40px;
 }
 
-.headies-product-layout .woocommerce-product-gallery {
-  flex: 1.2;
-  max-width: 700px;
-}
-
-.headies-product-layout .summary.entry-summary {
-  flex: 1;
-  position: sticky;
-  top: 120px;
-  padding-top: 20px;
-}
-
-.headies-product-layout .summary.entry-summary .product_title {
-  font-family: 'Cleo Folk', Georgia, serif;
-  font-size: 34px;
-  text-transform: uppercase;
-  color: #111;
-  margin-bottom: 8px;
-}
-
-.headies-product-layout .summary.entry-summary .price {
-  font-size: 22px;
-  color: #2359A9;
-  font-weight: 700;
-  margin-bottom: 24px;
-  display: block;
-}
-
-.headies-product-layout .summary.entry-summary .cart {
-  margin-top: 24px;
-}
-
-.headies-product-layout .summary.entry-summary .single_add_to_cart_button {
-  background: #2359A9;
-  color: #fff;
-  border: none;
-  border-radius: 30px;
-  padding: 16px 40px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  width: 100%;
+/* --- Gallery --- */
+.headies-gallery { display: grid; grid-template-columns: 88px 1fr; gap: 20px; align-items: start; }
+.headies-gallery-thumbs { display: grid; gap: 12px; }
+.headies-gallery-thumb {
+  border: 1px solid #e7e7e7;
+  background: #f7f7f7;
+  padding: 0;
   cursor: pointer;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  display: block;
+  width: 100%;
+  transition: border-color .15s ease, opacity .15s ease;
+}
+.headies-gallery-thumb:hover { border-color: #bbb; }
+.headies-gallery-thumb.is-active { border-color: #111; }
+.headies-gallery-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* Product photos are shot 3:4 (matching the Hats grid cards) — match the
+   box to that ratio so object-fit: contain fills it edge-to-edge instead of
+   letterboxing with grey bars. */
+.headies-gallery-main { position: relative; background: #f4f4f4; aspect-ratio: 3 / 4; overflow: hidden; }
+.headies-gallery-image {
+  width: 100%; height: 100%; object-fit: contain; display: block;
+  transition: opacity .18s ease;
+}
+.headies-gallery-image.is-fading { opacity: 0; }
+.headies-gallery-badge {
+  position: absolute; top: 14px; left: 14px; z-index: 2;
+  background: var(--headies-primary); color: #fff;
+  font-size: 10px; font-weight: 800; letter-spacing: 0.1em;
+  text-transform: uppercase; padding: 5px 10px;
+}
+.headies-gallery-badge--soon {
+  top: 44px;
+  background: var(--headies-accent); color: #0b2a4a;
+}
+.headies-gallery-main .headies-wishlist-toggle {
+  position: absolute; top: 14px; right: 14px; z-index: 3;
+  box-shadow: 0 1px 4px rgba(0,0,0,.15);
 }
 
-.headies-product-layout .summary.entry-summary .single_add_to_cart_button:hover {
-  background: #41AAF5;
+/* --- Summary --- */
+.headies-product-layout .summary.entry-summary { padding-top: 8px; position: sticky; top: 120px; }
+.headies-product-eyebrow {
+  margin: 0 0 10px;
+  font-size: 12px; font-weight: 800; letter-spacing: 0.14em;
+  text-transform: uppercase; color: #8a8a8a;
+}
+.headies-product-layout .summary .product_title {
+  font-family: 'Nunito', sans-serif;
+  font-size: 40px; line-height: 1.1; font-weight: 900;
+  letter-spacing: -0.01em;
+  color: #111; margin: 0 0 14px;
+  text-wrap: pretty;
+}
+.headies-product-layout .summary .price {
+  font-size: 22px; color: var(--headies-primary); font-weight: 700;
+  margin: 0 0 6px; display: block;
+}
+.headies-product-payline { margin: 0 0 24px; font-size: 13px; color: #8a8a8a; }
+
+/* --- Size selector — defaults to a single "One Size" chip for the
+   (currently all) one-size caps; renders a real multi-size row the moment
+   a product carries a "size" custom attribute --- */
+.headies-size-block { border-top: 1px solid #e7e7e7; padding-top: 22px; }
+.headies-size-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 12px; }
+.headies-size-label { margin: 0; font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 700; color: #111; }
+.headies-size-head a { font-size: 12px; font-weight: 700; color: var(--headies-primary); text-decoration: none; }
+.headies-size-grid { display: flex; flex-wrap: wrap; gap: 10px; }
+.headies-size {
+  min-width: 92px; border: 1.5px solid #111; border-radius: 8px; background: #fff; color: #111;
+  padding: 12px 22px; font-family: 'Nunito', sans-serif;
+  font-size: 14px; font-weight: 800;
+  cursor: pointer;
+  transition: background-color .15s ease, border-color .15s ease, color .15s ease;
+}
+.headies-size:hover { background: #f7f7f7; }
+.headies-size.is-active { border-width: 2px; }
+.headies-size[disabled] { opacity: .35; cursor: not-allowed; }
+
+/* Woo's own variation select is driven by the buttons above — keep it out of
+   sight but in the DOM so WooCommerce's variation JS keeps working. */
+.headies-product-layout .variations { position: absolute; left: -9999px; }
+
+/* --- Add to cart --- */
+.headies-product-layout .summary .cart { margin: 26px 0 0; display: flex; align-items: stretch; gap: 12px; }
+.headies-product-layout .summary .quantity {
+  display: flex; align-items: center; border: 1.5px solid #111; border-radius: 8px;
+  overflow: hidden; flex: none; box-sizing: border-box;
+}
+.headies-product-layout .summary .quantity .qty {
+  width: 50px; height: 56px; border: none; text-align: center;
+  font-family: 'Nunito', sans-serif; font-size: 15px; font-weight: 800; color: #111;
+  background: #fff; padding: 0; margin: 0; box-sizing: border-box; flex: none;
+  -moz-appearance: textfield; -webkit-appearance: none; appearance: none;
+}
+.headies-product-layout .summary .quantity .qty::-webkit-outer-spin-button,
+.headies-product-layout .summary .quantity .qty::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.headies-qty-step {
+  width: 40px; height: 56px; border: none; background: #fff;
+  cursor: pointer; font-size: 18px; font-weight: 700; color: #111;
+  padding: 0; margin: 0; box-sizing: border-box; flex: none;
+  transition: background-color .15s ease;
+}
+.headies-qty-step:hover { background: #fafafa; }
+
+.headies-product-layout .summary .single_add_to_cart_button {
+  flex: 1;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--headies-primary); color: #fff; border: 1px solid var(--headies-primary);
+  border-radius: 999px; min-height: 56px; padding: 0 32px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 16px; font-weight: 800; letter-spacing: normal;
+  text-transform: none; cursor: pointer; white-space: nowrap;
+  transition: filter .2s ease, transform .15s ease;
+}
+.headies-product-layout .summary .single_add_to_cart_button:hover {
+  filter: brightness(1.12);
+  transform: translateY(-1px);
+}
+.headies-product-layout .summary .single_add_to_cart_button:active {
+  transform: translateY(0); filter: brightness(0.95);
 }
 
-@media (max-width: 900px) {
-  .headies-product-layout {
-    flex-direction: column;
-    padding: 0 20px;
-  }
-  .headies-product-layout .summary.entry-summary {
-    position: static;
-  }
+/* --- Not-live-yet notice (replaces Add to Cart for an upcoming drop) --- */
+.headies-drop-notice {
+  margin: 26px 0 0; padding: 18px 20px;
+  background: #eef3fa; border-left: 3px solid var(--headies-primary);
+}
+.headies-drop-notice p { margin: 0; font-size: 14px; line-height: 1.6; color: #333; }
+.headies-drop-notice strong { color: var(--headies-primary); }
+
+/* --- Assurance note --- */
+.headies-product-assurance {
+  margin-top: 28px; border: 1px solid #e7e7e7; background: #fafafa;
+  padding: 18px 20px; display: flex; gap: 14px; align-items: flex-start;
+}
+.headies-product-assurance svg { width: 18px; height: 18px; flex: none; margin-top: 2px; color: var(--headies-primary); }
+.headies-product-assurance p { margin: 0; font-size: 13px; line-height: 1.6; color: #555; }
+
+/* --- Accordion (Details / Fit & Care / Delivery & Returns) --- */
+.headies-accordion { margin-top: 28px; border-top: 1px solid #e7e7e7; }
+.headies-accordion-item { border-bottom: 1px solid #e7e7e7; }
+.headies-accordion-toggle {
+  width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  background: none; border: none; padding: 18px 0; cursor: pointer; text-align: left;
+  font-family: 'Nunito', sans-serif; font-size: 16px; font-weight: 800;
+  color: #111;
+}
+.headies-accordion-marker { font-size: 18px; color: #8a8a8a; transition: transform .2s ease; }
+.headies-accordion-item.is-open .headies-accordion-marker { transform: rotate(180deg); }
+.headies-accordion-body {
+  display: grid; grid-template-rows: 0fr;
+  font-size: 14px; line-height: 1.7; color: #555;
+  transition: grid-template-rows .3s ease;
+}
+.headies-accordion-body-inner { overflow: hidden; min-height: 0; padding-bottom: 20px; }
+.headies-accordion-body-inner p { margin: 0 0 10px; }
+.headies-accordion-item.is-open .headies-accordion-body { grid-template-rows: 1fr; }
+
+/* --- Related --- */
+.headies-related { max-width: 1400px; margin: 70px auto 0; padding: 0 40px; }
+.headies-related h2 {
+  font-family: 'Nunito', sans-serif; font-size: 24px; font-weight: 900;
+  margin: 0 0 18px;
+}
+.headies-related-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  border-top: 1px solid #e7e7e7; border-left: 1px solid #e7e7e7;
+}
+.headies-related-card {
+  border-right: 1px solid #e7e7e7; border-bottom: 1px solid #e7e7e7;
+  display: block; color: #111; text-decoration: none;
+}
+.headies-related-image { background: #f4f4f4; aspect-ratio: 4 / 3; overflow: hidden; }
+.headies-related-image img {
+  width: 100%; height: 100%; object-fit: contain; display: block;
+  transition: transform .3s ease;
+}
+.headies-related-card:hover .headies-related-image img { transform: scale(1.05); }
+.headies-related-info {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 12px 14px; border-top: 1px solid #e7e7e7; font-size: 13.5px;
+}
+.headies-related-name { font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em; max-width: 75%; line-height: 1.35; }
+.headies-related-price { font-weight: 700; white-space: nowrap; }
+
+/* --- Sticky bag bar --- */
+.headies-bag-bar {
+  position: fixed; left: 0; right: 0; bottom: 24px; z-index: 1000;
+  display: flex; justify-content: center; pointer-events: none;
+}
+.headies-bag-bar-inner {
+  pointer-events: none; display: flex; align-items: center; gap: 20px;
+  background: #fff; border: 1px solid #e7e7e7;
+  box-shadow: 0 8px 30px rgba(0,0,0,.14);
+  padding: 12px 12px 12px 16px; border-radius: 999px;
+  opacity: 0; transform: translateY(16px);
+  transition: opacity .25s ease, transform .25s ease;
+}
+.headies-bag-bar.is-visible .headies-bag-bar-inner {
+  pointer-events: auto; opacity: 1; transform: translateY(0);
+}
+.headies-bag-thumb { width: 44px; height: 44px; background: #f4f4f4; border-radius: 50%; overflow: hidden; flex: none; }
+.headies-bag-thumb img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.headies-bag-line { margin: 0; font-size: 13.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; }
+.headies-bag-total { margin: 2px 0 0; font-size: 13px; color: #8a8a8a; }
+.headies-bag-checkout {
+  background: var(--headies-primary); color: #fff; border-radius: 999px;
+  padding: 14px 32px; font-family: 'Nunito', sans-serif;
+  font-size: 14px; font-weight: 800;
+  text-decoration: none;
+  transition: filter .2s ease;
+}
+.headies-bag-checkout:hover { filter: brightness(1.12); }
+
+@media (max-width: 1000px) {
+  .headies-product-layout { grid-template-columns: 1fr; gap: 32px; padding: 0 20px; }
+  .headies-product-layout .summary.entry-summary { position: static; }
+  .headies-gallery { grid-template-columns: 1fr; }
+  .headies-gallery-thumbs { grid-auto-flow: column; grid-auto-columns: 72px; overflow-x: auto; order: 2; }
+  .headies-product-layout .summary .product_title { font-size: 32px; }
+  .headies-related-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
 /* ===== MY ACCOUNT =====
@@ -560,7 +946,19 @@ body.woocommerce-account .headies-nav:not(.nav-scrolled):not(:hover) .nav-logo .
   display: block;
 }
 
-.headies-account-header { padding: 34px 0 18px; }
+/* Account/Cart/Checkout/Product all take over Storefront's default page
+   header with their own custom heading, so the default one (which still
+   renders in the DOM, just off-screen behind the fixed nav) needs to be
+   hidden everywhere this filter applies — see headies_remove_account_sidebar()
+   in functions.php, which adds this class unconditionally (regardless of
+   login state) for exactly those four page types. */
+body.storefront-full-width-content .entry-header { display: none; }
+
+/* .headies-nav is position:fixed and ~112px tall at its tallest (mobile,
+   drop-bar showing), so every page using this header needs that much top
+   clearance plus breathing room or its content renders underneath the nav.
+   Shared by My Account, Cart, Cart (empty), and the order-confirmation page. */
+.headies-account-header { padding: 140px 0 18px; }
 
 .headies-account-crumbs {
   margin: 0 0 6px;
@@ -664,8 +1062,12 @@ body.woocommerce-account .headies-nav:not(.nav-scrolled):not(:hover) .nav-logo .
 .headies-btn-outline:hover { background: var(--headies-primary); color: #fff; border-color: var(--headies-primary); }
 .headies-btn-outline--sm { padding: 11px 26px; }
 
-.headies-account .headies-btn-primary,
-.headies-account button.headies-btn-primary {
+/* Unscoped (not just .headies-account) — Cart's "Proceed to Checkout" and
+   Checkout's "Place order" carry this same class outside that container and
+   need the identical primary-button treatment, not just the WooCommerce
+   default button styling they'd otherwise fall back to. */
+.headies-btn-primary,
+button.headies-btn-primary {
   border: 1px solid var(--headies-primary);
   background: var(--headies-primary);
   color: #fff;
@@ -675,10 +1077,10 @@ body.woocommerce-account .headies-nav:not(.nav-scrolled):not(:hover) .nav-logo .
   font-weight: 800;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  border-radius: 0;
+  border-radius: 999px;
   cursor: pointer;
 }
-.headies-account .headies-btn-primary:hover { background: var(--headies-accent); border-color: var(--headies-accent); color: #0b2a4a; }
+.headies-btn-primary:hover { background: var(--headies-accent); border-color: var(--headies-accent); color: #0b2a4a; }
 
 .headies-link-action {
   font-size: 11px;
@@ -879,10 +1281,10 @@ body.woocommerce-account .headies-nav:not(.nav-scrolled):not(:hover) .nav-logo .
 }
 
 /* ===== LOGIN (split-screen) =====
-   Storefront prints its own "My account" title and adds top/bottom padding
-   around the page article — both irrelevant once we take over the layout,
-   so strip them just for the logged-out login screen. */
-body.woocommerce-account-login .entry-header { display: none; }
+   The default page title is already hidden site-wide for this page type by
+   the body.storefront-full-width-content rule above. Storefront also adds
+   top/bottom padding around the page article, which breaks the full-height
+   split-screen layout — strip that just for the logged-out login screen. */
 body.woocommerce-account-login .type-page,
 body.woocommerce-account-login .site-main { padding-top: 0; padding-bottom: 0; margin-bottom: 0; }
 
@@ -1055,7 +1457,8 @@ body.page-wishlist .headies-nav:not(.nav-scrolled):not(:hover) .nav-logo .logo-d
 body.page-wishlist .headies-nav:not(.nav-scrolled):not(:hover) .nav-logo .logo-hover {
   display: block;
 }
-body.page-wishlist .headies-account { padding-top: 150px; }
+/* Top clearance now lives in .headies-account-header itself (shared by all
+   pages that use it), so no page-specific override is needed here anymore. */
 
 .headies-wishlist-toggle {
   width: 34px;
@@ -1130,23 +1533,21 @@ body.page-wishlist .headies-account { padding-top: 150px; }
 .headies-wishlist-count { color: #8a8a8a; font-weight: 700; }
 .headies-wishlist-actions { display: flex; gap: 14px; flex-wrap: wrap; }
 
+/* Matches .hats-grid — same columns/gap, no table borders. */
 .headies-wishlist-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 0;
+  gap: 32px 28px;
   margin-top: 30px;
-  border-top: 1px solid #e7e7e7;
-  border-left: 1px solid #e7e7e7;
 }
-.headies-wishlist-card {
-  border-right: 1px solid #e7e7e7;
-  border-bottom: 1px solid #e7e7e7;
-}
+.headies-wishlist-card { position: relative; }
 
+/* Matches .hats-card-image — same 3:4 crop as the product photos so
+   object-fit: contain fills the box instead of letterboxing. */
 .headies-wishlist-image {
   position: relative;
   width: 100%;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 3 / 4;
   overflow: hidden;
   background: #f4f4f4;
 }
@@ -1218,7 +1619,6 @@ body.page-wishlist .headies-account { padding-top: 150px; }
   box-sizing: border-box;
   text-align: center;
   text-decoration: none;
-  border-radius: 0;
 }
 .headies-wishlist-add-to-cart:disabled { opacity: 0.5; cursor: not-allowed; }
 .headies-wishlist-add-to-cart.is-in-cart {
@@ -1228,9 +1628,420 @@ body.page-wishlist .headies-account { padding-top: 150px; }
 }
 
 @media (max-width: 900px) {
-  .headies-wishlist-grid { grid-template-columns: repeat(2, 1fr); }
+  .headies-wishlist-grid { grid-template-columns: repeat(2, 1fr); gap: 24px 18px; }
   .headies-wishlist-title-row { flex-direction: column; align-items: flex-start; }
 }
 @media (max-width: 500px) {
   .headies-wishlist-grid { grid-template-columns: 1fr; }
+}
+
+/* ===== CART ===== */
+
+.headies-cart-page {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 40px 100px;
+  font-family: 'Nunito', sans-serif;
+  color: #111;
+}
+
+body.woocommerce-cart .headies-nav:not(.nav-scrolled):not(:hover) { background: #fff; }
+body.woocommerce-cart .headies-nav:not(.nav-scrolled):not(:hover) .nav-links a,
+body.woocommerce-cart .headies-nav:not(.nav-scrolled):not(:hover) .nav-icon { color: #000; }
+body.woocommerce-cart .headies-nav:not(.nav-scrolled):not(:hover) .nav-logo .logo-default { display: none; }
+body.woocommerce-cart .headies-nav:not(.nav-scrolled):not(:hover) .nav-logo .logo-hover { display: block; }
+
+.headies-cart-page .headies-account-header h1 { font-size: 40px; }
+
+.headies-cart-layout { display: grid; grid-template-columns: 1fr 340px; gap: 48px; align-items: start; }
+
+.headies-cart-table { width: 100%; border-collapse: collapse; border-top: 1px solid #e7e7e7; }
+.headies-cart-table thead th {
+  text-align: left;
+  padding: 12px 16px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #8a8a8a;
+  border-bottom: 1px solid #e7e7e7;
+}
+.headies-cart-table .col-price,
+.headies-cart-table .col-qty,
+.headies-cart-table .col-total { text-align: left; }
+
+.headies-cart-row td { padding: 20px 16px; border-bottom: 1px solid #e7e7e7; vertical-align: top; }
+
+.headies-cart-item { display: flex; gap: 16px; }
+.headies-cart-item-image { width: 90px; flex: none; background: #f4f4f4; }
+.headies-cart-item-image img { display: block; width: 100%; height: auto; }
+.headies-cart-item-info { display: flex; flex-direction: column; gap: 4px; padding-top: 2px; }
+.headies-cart-item-name { font-size: 14.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em; }
+.headies-cart-item-name a { color: #111; text-decoration: none; }
+.headies-cart-item-info dl,
+.headies-cart-item-info .wc-item-meta { margin: 2px 0; font-size: 12.5px; color: #777; }
+.headies-cart-remove {
+  align-self: flex-start;
+  margin-top: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--headies-primary);
+  text-decoration: underline;
+}
+.headies-cart-remove:hover { color: var(--headies-accent); }
+
+.headies-cart-table .col-price { font-weight: 700; padding-top: 24px; }
+.headies-cart-table .col-total { font-weight: 800; padding-top: 24px; }
+
+.headies-qty-stepper { display: inline-flex; align-items: center; border: 1px solid #e7e7e7; }
+.headies-qty-stepper .qty-btn {
+  width: 34px;
+  height: 38px;
+  border: none;
+  background: #fafafa;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  color: #111;
+}
+.headies-qty-stepper .qty-btn:hover { background: var(--headies-primary); color: #fff; }
+.headies-qty-stepper input.qty {
+  width: 46px;
+  height: 38px;
+  border: none;
+  border-left: 1px solid #e7e7e7;
+  border-right: 1px solid #e7e7e7;
+  text-align: center;
+  font-size: 14px;
+  -moz-appearance: textfield;
+}
+.headies-qty-stepper input.qty::-webkit-outer-spin-button,
+.headies-qty-stepper input.qty::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+.headies-cart-footer-row { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; padding: 22px 16px; }
+.headies-cart-coupon { display: flex; gap: 10px; align-items: center; }
+.headies-cart-coupon input#coupon_code {
+  border: 1px solid #e7e7e7;
+  padding: 12px 14px;
+  font-size: 13px;
+  min-width: 200px;
+}
+.headies-cart-coupon input#coupon_code:focus { outline: none; border-color: var(--headies-primary); }
+.headies-continue-shopping { margin-left: auto; }
+.headies-cart-update-btn { display: none; }
+
+.headies-cart-sidebar { position: sticky; top: 120px; }
+
+.headies-order-summary { padding: 28px 26px; }
+.headies-order-summary .headies-section-title { margin-bottom: 18px; }
+
+.headies-summary-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.headies-summary-table tr th,
+.headies-summary-table tr td { padding: 10px 0; text-align: left; font-weight: 400; color: #333; }
+.headies-summary-table tr td { text-align: right; }
+.headies-summary-table tr.order-total th,
+.headies-summary-table tr.order-total td { border-top: 1px solid #e7e7e7; padding-top: 16px; font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 22px; color: var(--headies-primary); }
+.headies-summary-table tr.cart-discount th,
+.headies-summary-table tr.cart-discount td { color: var(--headies-primary); }
+
+.wc-proceed-to-checkout { margin-top: 18px; }
+.headies-checkout-btn,
+.headies-place-order {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  text-align: center;
+  text-decoration: none;
+}
+
+.headies-summary-drop-note {
+  margin-top: 20px;
+  padding: 16px 18px;
+  background: #eef3fa;
+  border-left: 3px solid var(--headies-primary);
+}
+.headies-summary-drop-note .drop-note-title {
+  margin: 0 0 4px;
+  font-family: 'Cleo Folk', Georgia, serif;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--headies-primary);
+}
+.headies-summary-drop-note .drop-note-body { margin: 0; font-size: 12.5px; line-height: 1.5; color: #555; }
+
+@media (max-width: 900px) {
+  .headies-cart-page { padding: 0 20px 80px; }
+  .headies-cart-layout { grid-template-columns: 1fr; }
+  .headies-cart-table thead { display: none; }
+  .headies-cart-row td { display: block; border: none; padding: 6px 0; }
+  .headies-cart-row { display: block; padding: 18px 0; border-bottom: 1px solid #e7e7e7; }
+  .headies-cart-table .col-price,
+  .headies-cart-table .col-total { padding-top: 6px; }
+  .headies-cart-sidebar { position: static; }
+}
+
+/* ===== SHIPPING METHOD / DELIVERY OPTION CARDS =====
+   Shared by the Cart sidebar (when shipping calc is shown) and the
+   Checkout "Delivery Method" step — see woocommerce/cart/cart-shipping.php */
+
+.headies-shipping-methods { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.headies-shipping-option { border: 1px solid #e7e7e7; }
+.headies-shipping-option.is-selected { border-color: var(--headies-primary); background: #eef3fa; }
+.headies-shipping-option label {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  cursor: pointer;
+  margin: 0;
+}
+.headies-shipping-option input.shipping_method { flex: none; accent-color: var(--headies-primary); width: 18px; height: 18px; }
+.headies-shipping-option-info { flex: 1; display: flex; flex-direction: column; gap: 3px; }
+.headies-shipping-option-name { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em; }
+.headies-shipping-option-sub { font-size: 12.5px; color: #777; }
+.headies-shipping-option-price { font-weight: 800; font-size: 14px; white-space: nowrap; }
+.headies-shipping-note { font-size: 13.5px; color: #777; }
+
+/* ===== CHECKOUT ===== */
+
+.headies-nav--checkout .nav-inner--checkout {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 22px 40px;
+}
+.headies-nav--checkout { background: #fff; position: static; }
+.headies-checkout-back {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #111;
+  text-decoration: none;
+}
+.headies-checkout-back:hover { color: var(--headies-primary); }
+.headies-nav--checkout .nav-logo img { height: 26px; width: auto; }
+.headies-checkout-secure {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #8a8a8a;
+}
+.headies-checkout-secure svg { width: 16px; height: 16px; }
+
+.headies-checkout-page {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 34px 40px 100px;
+  font-family: 'Nunito', sans-serif;
+  color: #111;
+}
+
+.headies-checkout-title-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: 30px;
+}
+.headies-checkout-title-row h1 {
+  font-family: 'Cleo Folk', Georgia, serif;
+  font-size: 34px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin: 0;
+}
+.headies-checkout-steps { display: flex; gap: 22px; }
+.headies-checkout-steps a {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #b0b0b0;
+  text-decoration: none;
+}
+.headies-checkout-steps a.is-active { color: var(--headies-primary); }
+
+.headies-checkout-layout { display: grid; grid-template-columns: 1fr 380px; gap: 48px; align-items: start; }
+
+.headies-checkout-section { border: 1px solid #e7e7e7; padding: 28px 30px; margin-bottom: 24px; background: #fff; }
+.headies-checkout-section .headies-section-title { margin-bottom: 22px; }
+.headies-checkout-help { margin: -10px 0 20px; font-size: 13px; color: #777; line-height: 1.6; }
+
+.headies-checkout-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 18px 20px; }
+.headies-checkout-fields .form-row-wide { grid-column: 1 / -1; }
+
+.headies-checkout-fields label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #8a8a8a;
+}
+.headies-checkout-fields .required { color: var(--headies-primary); border: none; }
+.headies-checkout-fields .description { margin: 6px 0 0; font-size: 12px; color: #999; }
+
+.headies-checkout-fields input[type="text"],
+.headies-checkout-fields input[type="email"],
+.headies-checkout-fields input[type="tel"],
+.headies-checkout-fields input[type="number"],
+.headies-checkout-fields select,
+.headies-checkout-fields textarea,
+.headies-pickup-field select {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #e7e7e7;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 13px 14px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 14px;
+  color: #111;
+  background: #fff;
+}
+.headies-checkout-fields input:focus,
+.headies-checkout-fields select:focus,
+.headies-checkout-fields textarea:focus,
+.headies-pickup-field select:focus { outline: none; border-color: var(--headies-primary); }
+.headies-checkout-fields textarea { min-height: 90px; resize: vertical; }
+
+.headies-subheading {
+  font-family: 'Cleo Folk', Georgia, serif;
+  font-size: 15px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin: 26px 0 14px;
+}
+.headies-delivery-methods { margin-top: 4px; }
+
+.headies-pickup-field { margin-top: 16px; }
+.headies-pickup-field .form-row { margin: 0; }
+
+.headies-checkout-account { background: #fafafa; }
+
+.headies-checkout-sidebar {
+  position: sticky;
+  top: 120px;
+  border: 1px solid #e7e7e7;
+  background: #fff;
+  padding: 28px 26px;
+  display: flex;
+  flex-direction: column;
+}
+/* Storefront's default checkout CSS floats #order_review at ~41% width for
+   its own two-column layout — reset that so it stacks full-width in ours. */
+.headies-checkout-sidebar #order_review_heading,
+.headies-checkout-sidebar #order_review {
+  float: none;
+  clear: none;
+  width: 100%;
+  margin: 0;
+}
+
+.headies-order-items { display: flex; flex-direction: column; gap: 16px; margin-bottom: 18px; padding-bottom: 18px; border-bottom: 1px solid #e7e7e7; }
+.headies-order-item { display: flex; gap: 14px; align-items: flex-start; }
+.headies-order-item-thumb { width: 56px; flex: none; background: #f4f4f4; }
+.headies-order-item-thumb img { display: block; width: 100%; height: auto; }
+.headies-order-item-info { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.headies-order-item-name { font-size: 13.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em; }
+.headies-order-item-qty { font-size: 12.5px; color: #777; }
+.headies-order-item-total { font-weight: 700; font-size: 13.5px; white-space: nowrap; }
+
+.headies-payment-methods { list-style: none; margin: 0 0 20px; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.headies-payment-option { border: 1px solid #e7e7e7; }
+.headies-payment-option.is-selected,
+.headies-payment-option:has(input:checked) { border-color: var(--headies-primary); background: #eef3fa; }
+/* Storefront's #payment .payment_methods>.wc_payment_method>label rule is
+   more specific than a plain class selector and forces display:block —
+   override it explicitly rather than fight specificity indefinitely. */
+.headies-payment-option label { display: flex !important; align-items: center; gap: 14px; padding: 16px 18px !important; margin: 0; cursor: pointer; }
+.headies-payment-option input.input-radio { flex: none; accent-color: var(--headies-primary); width: 18px; height: 18px; }
+.headies-payment-option-info { flex: 1; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.headies-payment-option-name { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em; }
+.headies-payment-option .payment_box {
+  padding: 4px 18px 18px;
+  font-size: 13px;
+  color: #555;
+  line-height: 1.6;
+}
+.headies-payment-option .payment_box p { margin: 0; }
+
+.headies-place-order { margin-top: 4px; cursor: pointer; border: 1px solid var(--headies-primary); }
+.woocommerce-terms-and-conditions-wrapper { margin: 14px 0; font-size: 12.5px; color: #777; }
+.woocommerce-privacy-policy-text { margin-top: 14px; font-size: 11.5px; color: #999; line-height: 1.6; }
+
+@media (max-width: 900px) {
+  .headies-checkout-page { padding: 24px 20px 80px; }
+  .headies-checkout-layout { grid-template-columns: 1fr; }
+  .headies-checkout-sidebar { position: static; }
+  .headies-checkout-fields { grid-template-columns: 1fr; }
+  .headies-nav--checkout .nav-inner--checkout { padding: 18px 20px; }
+  .headies-checkout-secure span { display: none; }
+}
+
+/* ===== ORDER CONFIRMATION =====
+   /checkout/order-received/ keeps the normal site nav (not the stripped
+   checkout nav), but like Cart/Account it has no hero behind it, so it
+   needs the same solid-nav treatment. WooCommerce tags both /checkout/ and
+   /checkout/order-received/ with body.woocommerce-checkout; the selectors
+   below simply don't match anything on the stripped-nav markup used on the
+   plain checkout page, so this only takes effect on order-received. */
+body.woocommerce-checkout .headies-nav:not(.nav-scrolled):not(:hover) { background: #fff; }
+body.woocommerce-checkout .headies-nav:not(.nav-scrolled):not(:hover) .nav-links a,
+body.woocommerce-checkout .headies-nav:not(.nav-scrolled):not(:hover) .nav-icon { color: #000; }
+body.woocommerce-checkout .headies-nav:not(.nav-scrolled):not(:hover) .nav-logo .logo-default { display: none; }
+body.woocommerce-checkout .headies-nav:not(.nav-scrolled):not(:hover) .nav-logo .logo-hover { display: block; }
+
+.headies-thankyou-page .headies-thankyou-message {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0 0 22px;
+}
+
+.headies-thankyou-summary,
+.headies-thankyou-next { padding: 26px 28px; margin-bottom: 22px; }
+
+.headies-thankyou-meta {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px 24px;
+  margin: 0;
+  padding-top: 20px;
+  border-top: 1px solid #e7e7e7;
+}
+.headies-thankyou-meta dt {
+  margin: 0 0 6px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #8a8a8a;
+}
+.headies-thankyou-meta dd { margin: 0; font-size: 14.5px; font-weight: 700; }
+
+.headies-thankyou-next p { margin: 0 0 12px; font-size: 14px; line-height: 1.6; color: #333; }
+.headies-thankyou-next p:last-child { margin-bottom: 0; }
+.headies-thankyou-next .headies-checkout-help { margin: 16px 0 0; padding-top: 16px; border-top: 1px solid #e7e7e7; }
+
+.headies-thankyou-layout { display: grid; grid-template-columns: 1fr 360px; gap: 32px; align-items: start; margin-bottom: 32px; }
+.headies-thankyou-sidebar { padding: 26px 28px; }
+.headies-thankyou-sidebar .headies-order-items { border-bottom: 1px solid #e7e7e7; }
+
+.headies-thankyou-actions { display: flex; gap: 16px; flex-wrap: wrap; }
+.headies-thankyou-actions .headies-btn-primary,
+.headies-thankyou-actions .headies-btn-outline { text-decoration: none; }
+
+@media (max-width: 900px) {
+  .headies-thankyou-layout { grid-template-columns: 1fr; }
+  .headies-thankyou-meta { grid-template-columns: repeat(2, 1fr); }
 }
