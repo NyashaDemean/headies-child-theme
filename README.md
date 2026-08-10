@@ -1,113 +1,81 @@
+<p align="center">
+  <img src="images/logos/logo-3d-blue.png" alt="Headies" width="360">
+</p>
+
+<p align="center"><i>"Good caps, always. Great ones, sometimes."</i></p>
+
 # Headies
 
-Custom WordPress + WooCommerce child theme for **Headies** — a headwear brand built on two lanes: reliable everyday caps, and occasional limited customization drops (bedazzled, floral patches).
+Custom WordPress + WooCommerce child theme for **Headies** — a headwear brand
+built on two lanes: reliable everyday caps, and occasional limited
+customization **Drops**. Built on the [Storefront](https://woocommerce.com/storefront/)
+parent theme.
 
-> "Good caps, always. Great ones, sometimes."
-
-Built on the [Storefront](https://woocommerce.com/storefront/) parent theme.
+<p align="center">
+  <img src="images/drops/The Ivory League/Ivory main.png" alt="The Ivory League drop" width="31%">
+  <img src="images/drops/Heartbloom/Heartbloom main.png" alt="Heartbloom drop" width="31%">
+  <img src="images/drops/Under The Green/Green main.png" alt="Under The Green drop" width="31%">
+</p>
 
 ## Tech stack
 
 - WordPress + WooCommerce
-- Storefront (parent theme)
+- [Storefront](https://woocommerce.com/storefront/) (parent theme)
 - Custom child theme (this repo)
 - Payments: Paynow (EcoCash, ZimSwitch, Visa/Mastercard, OneMoney)
 - Fonts: Cleo Folk (headings), Nunito (body)
-- Brand colors: `#2359A9` (primary blue), `#41AAF5` (accent blue)
+- Brand colors: `#12203A` (primary navy), `#41AAF5` (accent blue)
 
-## Features built
+## Pages
 
-- **Custom nav** — transparent over hero, flips white/black on scroll or hover, logo swaps to match
-- **Toggleable drop bar** — promo banner above the nav that auto-shows when a drop's status is `'live'` in `headies_get_drops()`
-- **Hero section** — full-bleed image, headline, CTA
-- **Recent Collections** — 4-across grid pulling from the drops array
-- **Trending Now** — full-bleed feature section with drop name + CTA
-- **Custom footer** — socials, copyright, centered logo
+| Page | Template | Notes |
+|---|---|---|
+| Home | `front-page.php` | Hero video, featured drop banner, Drops row, Trending Now |
+| Hats | `page-hats.php` | Full catalog grid — badges auto-switch between New / Coming Soon / Exclusive |
+| Accessories | `page-accessories.php` | Same grid design as Hats, its own product category |
+| Drops | `page-drops.php` | Full-bleed hero + Upcoming/Past drop grids |
+| Single drop | `taxonomy-product_drop.php` | `/drop/{slug}/` — hero photo, black write-up bar, product grid |
+| Wishlist | `page-wishlist.php` | Cookie/account-backed, AJAX add/remove |
+| Search | `search.php` | Reuses the Hats grid design instead of Storefront's default blog search |
+| Cart / Checkout / My Account | `woocommerce/**` | Fully re-skinned to match the brand, including a stripped-down checkout nav |
+
+## Drops system
+
+Drops are a custom taxonomy, `product_drop`, registered on the `product` post
+type — same mechanism as the built-in product categories. Manage them under
+**Products → Drops** in wp-admin.
+
+**Fields per drop** (term meta):
+- Drop Start / End Date/Time (`YYYY-MM-DD HH:MM:SS`, 24hr — leave End blank to stay live indefinitely once it starts)
+- Banner Image — the Drops page "Upcoming" carousel/hero background
+- Card Image — homepage Drops row + Past Drops thumbnail
+- Detail Page Hero — the photo at the top of the drop's own page
+- Tagline, and a Full Description (the taxonomy Description field itself is the short blurb)
+
+**Status is derived automatically**, never set by hand:
+- `upcoming` — now < Start
+- `live` — between Start and End (or no End set)
+- `past` — now > End
+
+**What status drives:**
+- Product card badge: `New` (no drop) → `Coming Soon` (upcoming) → `Exclusive` (live/past)
+- On the drop's own page, the product grid hides name/price entirely while `upcoming` (a "reveal" grid — you can still wishlist), and shows normally once live/past
+- On a product's single page, Add to Cart is replaced with a "wishlist it now" notice while its drop is `upcoming`
+
+`headies_get_drops()` / `headies_build_drop_array()` / `headies_get_drop_status()`
+in `functions.php` are the source of truth — everything above reads from those.
 
 ## Local development
 
 Built and tested locally via [Local](https://localwp.com/) at `headies-dev.local`.
-## Managing drops
 
-Drops live in `headies_get_drops()` inside `functions.php`. Each drop is an array with `name`, `desc`, `status` (`'live'` or `'upcoming'`), and `date`. Setting a drop's status to `'live'` automatically shows the promo bar site-wide with that drop's name.
+## Known gaps
 
-## Still to do
-
-- [ ] Real product photography (currently using placeholder images)
-- [ ] Black logo variant for nav hover state
-- [ ] Search icon functionality (currently a placeholder link)
-- [ ] Real social media links in footer
-- [ ] Drops page styling
-- [ ] Real WooCommerce products
-- [ ] Paynow integration
+- [ ] Real Paynow account credentials (gateway is wired up, running in test mode)
+- [ ] Cleo Folk commercial license (currently free personal-use — upgrade before launch)
 - [ ] Domain + hosting
-- [ ] Cleo Folk commercial license (currently free personal-use — must upgrade before launch)
+- [ ] Real social links in the footer
 
 ## Author
 
 Nyasha Demean Muzerengi
-
-## Recent Updates
-
-- Added 7 new hat products (Chicago White Sox, LA Dodgers x3, NY Pink Monogram, NY Yankees Maroon, Phillies) via WP-CLI, each with front/back images for hover-swap
-- Reworked Hats page grid layout: 4-column dense grid with thin dividers (no gaps), full-bleed product images edge-to-edge
-- Wishlist and cart icons now overlay directly on top of product images (heart top-left, cart top-right) instead of sitting in a separate row
-- Swapped the "bag" icon for a cart icon matching the main nav
-- Fixed nav bar and logo visibility bug on non-hero pages (was invisible/blue-on-white)
-
-**Known issue / next session:** icon overlay positioning needs another pass — icons aren't consistently sitting flush over the image on all cards yet.
-## Drops System (added Aug 2026)
-
-Drops are a custom WordPress taxonomy called `product_drop`, registered on the
-`product` post type — same mechanism as the built-in "Hats" category.
-
-### How to add a new drop
-1. Go to **Products → Drops → Add New Drop**
-2. Fill in: Name, Description, Drop Start Date/Time, Drop End Date/Time, Drop Image (Attachment ID)
-   - Date format: `YYYY-MM-DD HH:MM:SS` (24hr)
-   - Leave End Date blank to keep a drop "live" indefinitely
-   - Image ID = the Media Library attachment ID (upload photo first, find ID in Media Library URL or via `wp media import`)
-3. To assign hats to a drop: edit a hat product, check the relevant Drop in the
-   "Drops" panel (same UI pattern as assigning Hat categories)
-
-### How status is calculated (automatic, no manual field)
-- `upcoming` — now < Drop Start Date/Time
-- `live`     — between Start and End (or no End set)
-- `past`     — now > Drop End Date/Time
-
-### Where this data flows
-- `headies_get_drops()` in `functions.php` reads the taxonomy + term meta,
-  returns an array shaped for display (name, desc, status, date, drop_datetime, image)
-- `page-drops.php` groups drops into "upcoming/live" (shown in hero) vs "past"
-  (shown in horizontal-scroll cards)
-- `front-page.php` (homepage) — Recent Collections and Trending Now sections
-  both call `headies_get_drops()` directly, so adding a drop updates the
-  homepage automatically, no separate edit needed
-- Countdown timer on the hero is pure JS, reads `data-dropdate` attribute,
-  ticks live, flips to "OUT NOW" at zero
-
-### Drop images already in Media Library (imported Aug 2026)
-| File | Media ID |
-|---|---|
-| drop-photo-01.jpeg | 57 |
-| drop-photo-02.jpg | 58 |
-| drop-photo-03.jpg | 59 |
-| drop-photo-04.jpg | 60 |
-| drop-photo-05.jpg | 61 |
-| drop-photo-06.jpg | 62 |
-| drop-photo-07.jpg | 63 |
-| drop-photo-08.jpg | 64 |
-| drop-photo-09.jpg | 65 |
-| drop-photo-10.jpg | 66 |
-
-### Known issue being fixed (Aug 2026)
-Drops with status `live` were not displaying anywhere — `page-drops.php`
-grouping logic only checked for `upcoming`/`past`. Fix: treat `live` same as
-`upcoming` for display purposes (shows in hero, countdown auto-shows "OUT NOW").
-
-### Still outstanding
-- Wishlist: YITH WooCommerce Wishlist plugin selected, not yet installed
-- Cart & My Account pages: using WooCommerce defaults, not yet styled to match brand
-- 3 placeholder drops (TBD 1/2/3) need real names + hat assignments
-- Single-drop hat listing page (view hats within one specific drop) not yet built
-
