@@ -74,12 +74,12 @@ body .headies-nav:not(.nav-scrolled):not(:hover) .nav-logo .logo-hover{
   text-align: right;
 }
 .drops-hero-name{
-  font-family: 'Cleo Folk', Georgia, serif; font-size: 50px; text-transform: uppercase;
+  font-family: 'Fredoka', cursive; font-size: 50px; text-transform: uppercase;
   color: #fff; margin: 0 0 16px; line-height: 1.05;
 }
 .drops-page{ background: #fff; padding: 0 16px 40px; }
 .drops-section-title{
-  font-family: 'Cleo Folk', Georgia, serif;
+  font-family: 'Fredoka', cursive;
   font-size: 56px; text-transform: uppercase; color: #111;
   margin: 64px 0 24px; padding: 0 16px;
 }
@@ -107,7 +107,7 @@ body .headies-nav:not(.nav-scrolled):not(:hover) .nav-logo .logo-hover{
 .drop-article-card__date{
   position: absolute; top: 8px; right: 8px; z-index: 2;
   background: var(--headies-accent); color: #0b2a4a;
-  font-family: 'Nunito', sans-serif; font-size: 12px; font-weight: 800;
+  font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 800;
   padding: 4px 12px; border-radius: 4px;
 }
 .drop-article-card__content{
@@ -116,7 +116,7 @@ body .headies-nav:not(.nav-scrolled):not(:hover) .nav-logo .logo-hover{
   display: flex; align-items: flex-end; justify-content: space-between; gap: 12px;
 }
 .drop-article-card__name{
-  font-family: 'Nunito', sans-serif; font-size: 18px; font-weight: 800; color: #fff;
+  font-family: 'Inter', sans-serif; font-size: 18px; font-weight: 800; color: #fff;
 }
 .drop-article-card__arrow{ width: 20px; height: auto; color: #fff; flex: none; }
 

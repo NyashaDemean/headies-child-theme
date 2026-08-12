@@ -106,16 +106,16 @@ body .headies-nav:not(.nav-scrolled):not(:hover) .nav-logo .logo-hover{
 .drop-hero-overlay{ position: relative; z-index: 1; padding: 40px 48px; }
 .drop-hero-back{
   display: inline-block; margin-bottom: 18px;
-  font-family: 'Nunito', sans-serif; font-size: 12px; font-weight: 800;
+  font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 800;
   letter-spacing: 0.1em; text-transform: uppercase; color: #fff; text-decoration: none; opacity: .85;
 }
 .drop-hero-back:hover{ opacity: 1; }
 .drop-hero-countdown{
-  display: block; font-family: 'Nunito', sans-serif; font-size: 13px; font-weight: 800;
+  display: block; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 800;
   letter-spacing: 0.12em; text-transform: uppercase; color: var(--headies-accent);
 }
 .drop-hero-status{
-  display: inline-block; font-family: 'Nunito', sans-serif; font-size: 12px; font-weight: 800;
+  display: inline-block; font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 800;
   letter-spacing: 0.12em; text-transform: uppercase; color: #0b2a4a; background: var(--headies-accent);
   padding: 6px 14px; border-radius: 999px;
 }
@@ -125,23 +125,23 @@ body .headies-nav:not(.nav-scrolled):not(:hover) .nav-logo .logo-hover{
 .drop-name-bar{ background: #111; }
 .drop-name-bar-inner{ max-width: 900px; margin: 0 auto; padding: 40px 48px; }
 .drop-hero-name{
-  font-family: 'Cleo Folk', Georgia, serif; font-size: 40px; text-transform: uppercase;
+  font-family: 'Fredoka', cursive; font-size: 40px; text-transform: uppercase;
   color: #fff; margin: 0 0 12px; line-height: 1.05;
 }
 .drop-hero-tagline{
-  font-family: 'Nunito', sans-serif; font-size: 16px; color: #ccc; margin: 0 0 20px;
+  font-family: 'Inter', sans-serif; font-size: 16px; color: #ccc; margin: 0 0 20px;
 }
 
 .drop-page{ background: #fff; padding: 40px 40px 20px; max-width: 1400px; margin: 0 auto; }
 .drop-description{
-  font-family: 'Nunito', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 15px; line-height: 1.75; color: #ddd;
 }
 .drop-description p{ margin: 0 0 14px; }
 .drop-reveal-note{
   max-width: 720px; margin: 0 auto 34px; padding: 16px 20px;
   background: #eef3fa; border-left: 3px solid var(--headies-primary);
-  font-family: 'Nunito', sans-serif; font-size: 13.5px; line-height: 1.6; color: #333;
+  font-family: 'Inter', sans-serif; font-size: 13.5px; line-height: 1.6; color: #333;
 }
 
 @media (max-width: 900px){

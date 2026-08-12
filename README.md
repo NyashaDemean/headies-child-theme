@@ -23,7 +23,7 @@ parent theme.
 - [Storefront](https://woocommerce.com/storefront/) (parent theme)
 - Custom child theme (this repo)
 - Payments: Paynow (EcoCash, ZimSwitch, Visa/Mastercard, OneMoney)
-- Fonts: Cleo Folk (headings), Nunito (body)
+- Fonts: [Fredoka](https://fonts.google.com/specimen/Fredoka) (drop names, hero, major headings), [Inter](https://fonts.google.com/specimen/Inter) (everything else) — both free (SIL OFL), self-hosted as `.woff2` in `assets/fonts/`, no Google Fonts CDN request at runtime
 - Brand colors: `#12203A` (primary navy), `#41AAF5` (accent blue)
 
 ## Pages
@@ -33,7 +33,7 @@ parent theme.
 | Home | `front-page.php` | Hero video, featured drop banner, Drops row, Trending Now |
 | Hats | `page-hats.php` | Full catalog grid — badges auto-switch between New / Coming Soon / Exclusive |
 | Accessories | `page-accessories.php` | Same grid design as Hats, its own product category |
-| Drops | `page-drops.php` | Full-bleed hero + Upcoming/Past drop grids |
+| Drops | `page-drops.php` | Full-bleed hero + Upcoming/Past drop grids (matches Hat Club's drops-archive layout) |
 | Single drop | `taxonomy-product_drop.php` | `/drop/{slug}/` — hero photo, black write-up bar, product grid |
 | Wishlist | `page-wishlist.php` | Cookie/account-backed, AJAX add/remove |
 | Search | `search.php` | Reuses the Hats grid design instead of Storefront's default blog search |
@@ -47,7 +47,7 @@ type — same mechanism as the built-in product categories. Manage them under
 
 **Fields per drop** (term meta):
 - Drop Start / End Date/Time (`YYYY-MM-DD HH:MM:SS`, 24hr — leave End blank to stay live indefinitely once it starts)
-- Banner Image — the Drops page "Upcoming" carousel/hero background
+- Banner Image — the Drops page hero background for the nearest upcoming drop
 - Card Image — homepage Drops row + Past Drops thumbnail
 - Detail Page Hero — the photo at the top of the drop's own page
 - Tagline, and a Full Description (the taxonomy Description field itself is the short blurb)
@@ -72,7 +72,6 @@ Built and tested locally via [Local](https://localwp.com/) at `headies-dev.local
 ## Known gaps
 
 - [ ] Real Paynow account credentials (gateway is wired up, running in test mode)
-- [ ] Cleo Folk commercial license (currently free personal-use — upgrade before launch)
 - [ ] Domain + hosting
 - [ ] Real social links in the footer
 
