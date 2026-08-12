@@ -13,24 +13,61 @@ Text Domain: headies
   --headies-accent: #41AAF5;
 }
 
+/* Self-hosted — no Google Fonts CDN request at runtime. Fredoka carries
+   drop names, the homepage hero line, and major headings; Inter carries
+   everything else. Both are free (SIL OFL), no commercial license needed. */
 @font-face {
-  font-family: 'Cleo Folk';
-  src: url('fonts/cleo-folk.ttf') format('truetype');
-  font-weight: normal;
+  font-family: 'Fredoka';
+  src: url('assets/fonts/Fredoka-SemiBold.woff2') format('woff2');
+  font-weight: 600;
   font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Inter';
+  src: url('assets/fonts/Inter-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Inter';
+  src: url('assets/fonts/Inter-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Inter';
+  src: url('assets/fonts/Inter-SemiBold.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Inter';
+  src: url('assets/fonts/Inter-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Inter';
+  src: url('assets/fonts/Inter-ExtraBold.woff2') format('woff2');
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
 }
 
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
-
 body {
-  font-family: 'Nunito', sans-serif;
+  font-family: 'Inter', sans-serif;
 }
 
 h1, h2, h3, h4, h5, h6,
 .site-title,
 .woocommerce-loop-product__title,
 button, .button {
-  font-family: 'Cleo Folk', cursive;
+  font-family: 'Fredoka', cursive;
   letter-spacing: 0.5px;
 }
 
@@ -95,7 +132,7 @@ button, .button {
   display: inline-block;
   background: #111;
   color: #fff;
-  font-family: 'Nunito', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-weight: 800;
   font-size: 15px;
   padding: 16px 34px;
@@ -287,7 +324,7 @@ button, .button {
 .nav-search-form .search-field {
   flex: 1; border: none; outline: none;
   background: transparent; padding: 12px 4px;
-  font-family: 'Nunito', sans-serif; font-size: 15px; color: #111;
+  font-family: 'Inter', sans-serif; font-size: 15px; color: #111;
 }
 .nav-search-form .search-field::placeholder { color: #888; }
 
@@ -305,17 +342,17 @@ button, .button {
 .nav-search-result-image { aspect-ratio: 1 / 1; background: #f4f4f4; overflow: hidden; }
 .nav-search-result-image img { width: 100%; height: 100%; object-fit: contain; display: block; }
 .nav-search-result-name {
-  font-family: 'Nunito', sans-serif; font-size: 12.5px; font-weight: 700; line-height: 1.35;
+  font-family: 'Inter', sans-serif; font-size: 12.5px; font-weight: 700; line-height: 1.35;
 }
 .nav-search-result-name mark {
   background: #fde68a; color: inherit; padding: 0 1px; border-radius: 2px;
 }
 .nav-search-result-price {
-  font-family: 'Nunito', sans-serif; font-size: 12.5px; font-weight: 700; color: var(--headies-primary);
+  font-family: 'Inter', sans-serif; font-size: 12.5px; font-weight: 700; color: var(--headies-primary);
 }
 .nav-search-view-all {
   display: inline-block; margin-top: 18px;
-  font-family: 'Nunito', sans-serif; font-size: 12px; font-weight: 800;
+  font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 800;
   letter-spacing: 0.08em; text-transform: uppercase;
   color: var(--headies-primary); text-decoration: none;
 }
@@ -385,16 +422,16 @@ button, .button {
 }
 .featured-drop-eyebrow {
   display: inline-block;
-  font-family: 'Nunito', sans-serif; font-size: 11px; font-weight: 800;
+  font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 800;
   letter-spacing: 0.14em; text-transform: uppercase; color: var(--headies-primary);
   margin-bottom: 14px;
 }
 .featured-drop-name {
-  font-family: 'Cleo Folk', Georgia, serif; font-size: 44px; text-transform: uppercase;
+  font-family: 'Fredoka', cursive; font-size: 44px; text-transform: uppercase;
   margin: 0 0 16px; color: #111; line-height: 1.05;
 }
 .featured-drop-desc {
-  font-family: 'Nunito', sans-serif; font-size: 15px; color: #555;
+  font-family: 'Inter', sans-serif; font-size: 15px; color: #555;
   margin: 0 0 28px; max-width: 420px;
 }
 .featured-drop-image {
@@ -501,7 +538,7 @@ button, .button {
 
 .trending-drop-name {
   color: #fff;
-  font-family: 'Cleo Folk', cursive;
+  font-family: 'Fredoka', cursive;
   font-size: 20px;
   margin: 0 0 12px;
 }
@@ -578,7 +615,7 @@ button, .button {
 .hats-page { background: #ffffff; padding: 0; }
 .hats-page-header { padding: 34px 40px 18px; }
 .hats-page-header h1 {
-  font-family: 'Cleo Folk', Georgia, serif;
+  font-family: 'Fredoka', cursive;
   font-size: 34px; font-weight: 800; text-transform: uppercase;
   letter-spacing: 0.03em; color: #111;
 }
@@ -589,11 +626,11 @@ button, .button {
    product/account page headers. */
 .search-results-header { background: #f2f2f2; padding: 140px 64px 48px; margin-bottom: 10px; }
 .search-results-label {
-  margin: 0 0 8px; font-family: 'Nunito', sans-serif;
+  margin: 0 0 8px; font-family: 'Inter', sans-serif;
   font-size: 20px; font-weight: 600; color: #666;
 }
 .search-results-term {
-  margin: 0; font-family: 'Nunito', sans-serif;
+  margin: 0; font-family: 'Inter', sans-serif;
   font-size: 56px; font-weight: 900; color: #111; letter-spacing: -0.01em;
 }
 @media (max-width: 700px) {
@@ -636,7 +673,7 @@ button, .button {
 
 .hats-card-info {
   display: flex; justify-content: space-between; align-items: center;
-  padding: 14px 2px 0; font-size: 14px; font-family: 'Nunito', sans-serif;
+  padding: 14px 2px 0; font-size: 14px; font-family: 'Inter', sans-serif;
 }
 .hats-name { font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em; max-width: 75%; line-height: 1.35; }
 .hats-price { font-weight: 700; color: #111; white-space: nowrap; }
@@ -742,7 +779,7 @@ body.single-product .headies-nav:not(.nav-scrolled):not(:hover) .nav-logo .logo-
   text-transform: uppercase; color: #8a8a8a;
 }
 .headies-product-layout .summary .product_title {
-  font-family: 'Nunito', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 40px; line-height: 1.1; font-weight: 900;
   letter-spacing: -0.01em;
   color: #111; margin: 0 0 14px;
@@ -759,12 +796,12 @@ body.single-product .headies-nav:not(.nav-scrolled):not(:hover) .nav-logo .logo-
    a product carries a "size" custom attribute --- */
 .headies-size-block { border-top: 1px solid #e7e7e7; padding-top: 22px; }
 .headies-size-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 12px; }
-.headies-size-label { margin: 0; font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 700; color: #111; }
+.headies-size-label { margin: 0; font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 700; color: #111; }
 .headies-size-head a { font-size: 12px; font-weight: 700; color: var(--headies-primary); text-decoration: none; }
 .headies-size-grid { display: flex; flex-wrap: wrap; gap: 10px; }
 .headies-size {
   min-width: 92px; border: 1.5px solid #111; border-radius: 8px; background: #fff; color: #111;
-  padding: 12px 22px; font-family: 'Nunito', sans-serif;
+  padding: 12px 22px; font-family: 'Inter', sans-serif;
   font-size: 14px; font-weight: 800;
   cursor: pointer;
   transition: background-color .15s ease, border-color .15s ease, color .15s ease;
@@ -785,7 +822,7 @@ body.single-product .headies-nav:not(.nav-scrolled):not(:hover) .nav-logo .logo-
 }
 .headies-product-layout .summary .quantity .qty {
   width: 50px; height: 56px; border: none; text-align: center;
-  font-family: 'Nunito', sans-serif; font-size: 15px; font-weight: 800; color: #111;
+  font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 800; color: #111;
   background: #fff; padding: 0; margin: 0; box-sizing: border-box; flex: none;
   -moz-appearance: textfield; -webkit-appearance: none; appearance: none;
 }
@@ -804,7 +841,7 @@ body.single-product .headies-nav:not(.nav-scrolled):not(:hover) .nav-logo .logo-
   display: flex; align-items: center; justify-content: center;
   background: var(--headies-primary); color: #fff; border: 1px solid var(--headies-primary);
   border-radius: 999px; min-height: 56px; padding: 0 32px;
-  font-family: 'Nunito', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 16px; font-weight: 800; letter-spacing: normal;
   text-transform: none; cursor: pointer; white-space: nowrap;
   transition: filter .2s ease, transform .15s ease;
@@ -839,7 +876,7 @@ body.single-product .headies-nav:not(.nav-scrolled):not(:hover) .nav-logo .logo-
 .headies-accordion-toggle {
   width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 16px;
   background: none; border: none; padding: 18px 0; cursor: pointer; text-align: left;
-  font-family: 'Nunito', sans-serif; font-size: 16px; font-weight: 800;
+  font-family: 'Inter', sans-serif; font-size: 16px; font-weight: 800;
   color: #111;
 }
 .headies-accordion-marker { font-size: 18px; color: #8a8a8a; transition: transform .2s ease; }
@@ -856,7 +893,7 @@ body.single-product .headies-nav:not(.nav-scrolled):not(:hover) .nav-logo .logo-
 /* --- Related --- */
 .headies-related { max-width: 1400px; margin: 70px auto 0; padding: 0 40px; }
 .headies-related h2 {
-  font-family: 'Nunito', sans-serif; font-size: 24px; font-weight: 900;
+  font-family: 'Inter', sans-serif; font-size: 24px; font-weight: 900;
   margin: 0 0 18px;
 }
 .headies-related-grid {
@@ -880,35 +917,6 @@ body.single-product .headies-nav:not(.nav-scrolled):not(:hover) .nav-logo .logo-
 .headies-related-name { font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em; max-width: 75%; line-height: 1.35; }
 .headies-related-price { font-weight: 700; white-space: nowrap; }
 
-/* --- Sticky bag bar --- */
-.headies-bag-bar {
-  position: fixed; left: 0; right: 0; bottom: 24px; z-index: 1000;
-  display: flex; justify-content: center; pointer-events: none;
-}
-.headies-bag-bar-inner {
-  pointer-events: none; display: flex; align-items: center; gap: 20px;
-  background: #fff; border: 1px solid #e7e7e7;
-  box-shadow: 0 8px 30px rgba(0,0,0,.14);
-  padding: 12px 12px 12px 16px; border-radius: 999px;
-  opacity: 0; transform: translateY(16px);
-  transition: opacity .25s ease, transform .25s ease;
-}
-.headies-bag-bar.is-visible .headies-bag-bar-inner {
-  pointer-events: auto; opacity: 1; transform: translateY(0);
-}
-.headies-bag-thumb { width: 44px; height: 44px; background: #f4f4f4; border-radius: 50%; overflow: hidden; flex: none; }
-.headies-bag-thumb img { width: 100%; height: 100%; object-fit: contain; display: block; }
-.headies-bag-line { margin: 0; font-size: 13.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; }
-.headies-bag-total { margin: 2px 0 0; font-size: 13px; color: #8a8a8a; }
-.headies-bag-checkout {
-  background: var(--headies-primary); color: #fff; border-radius: 999px;
-  padding: 14px 32px; font-family: 'Nunito', sans-serif;
-  font-size: 14px; font-weight: 800;
-  text-decoration: none;
-  transition: filter .2s ease;
-}
-.headies-bag-checkout:hover { filter: brightness(1.12); }
-
 @media (max-width: 1000px) {
   .headies-product-layout { grid-template-columns: 1fr; gap: 32px; padding: 0 20px; }
   .headies-product-layout .summary.entry-summary { position: static; }
@@ -925,7 +933,7 @@ body.single-product .headies-nav:not(.nav-scrolled):not(:hover) .nav-logo .logo-
   max-width: 1400px;
   margin: 0 auto;
   padding: 0 40px 80px;
-  font-family: 'Nunito', sans-serif;
+  font-family: 'Inter', sans-serif;
   color: #111;
 }
 
@@ -958,7 +966,27 @@ body.storefront-full-width-content .entry-header { display: none; }
    drop-bar showing), so every page using this header needs that much top
    clearance plus breathing room or its content renders underneath the nav.
    Shared by My Account, Cart, Cart (empty), and the order-confirmation page. */
-.headies-account-header { padding: 140px 0 18px; }
+.headies-account-header {
+  padding: 140px 0 18px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.headies-address-book-actions { display: flex; align-items: center; gap: 12px; }
+.headies-pill-btn--dark { background: #111; color: #fff; border-color: #111; }
+.headies-pill-btn--dark:hover { background: #333; color: #fff; }
+.headies-address-nav-arrow {
+  width: 40px; height: 40px; border-radius: 50%;
+  border: 1px solid #e7e7e7; background: #fff; color: #111;
+  font-size: 18px; line-height: 1; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+  transition: background .15s ease;
+}
+.headies-address-nav-arrow:hover:not(:disabled) { background: #f4f4f4; }
+.headies-address-nav-arrow:disabled { opacity: .35; cursor: default; }
 
 .headies-account-crumbs {
   margin: 0 0 6px;
@@ -972,21 +1000,31 @@ body.storefront-full-width-content .entry-header { display: none; }
 .headies-account-crumbs a:hover { color: var(--headies-primary); }
 
 .headies-account-header h1 {
-  font-family: 'Cleo Folk', Georgia, serif;
-  font-size: 34px;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
+  font-family: 'Fredoka', cursive;
+  font-size: 64px;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0;
   color: #111;
   margin: 0;
 }
+.headies-account-welcome { margin: 10px 0 0; font-size: 16px; color: #555; }
 
+/* Explicit grid areas rather than nested-wrapper flow — the sidebar spans
+   both rows so it's guaranteed to start level with the header (row 1) and
+   run down alongside the content (row 2), regardless of how tall either
+   column's content turns out to be. */
 .headies-account-layout {
   display: grid;
-  grid-template-columns: 250px 1fr;
-  gap: 48px;
-  align-items: start;
+  grid-template-columns: 200px 1fr;
+  grid-template-rows: auto 1fr;
+  grid-template-areas: "sidebar header" "sidebar content";
+  column-gap: 40px;
+  padding-top: 140px;
 }
+.headies-account-side { grid-area: sidebar; }
+.headies-account-layout .headies-account-header { grid-area: header; padding: 0 0 28px; }
+.headies-account-layout .woocommerce-MyAccount-content { grid-area: content; }
 
 /* WooCommerce's own woocommerce-layout.css floats these at 30%/68% widths,
    meant for a plain two-column page. That collapses our 250px grid column
@@ -998,49 +1036,46 @@ body.storefront-full-width-content .entry-header { display: none; }
   width: 100%;
 }
 
-/* --- Side navigation --- */
-.headies-account-side .woocommerce-MyAccount-navigation { border-top: 1px solid #e7e7e7; }
-.headies-account-side .woocommerce-MyAccount-navigation ul { list-style: none; margin: 0; padding: 0; }
-
+/* --- Side navigation — plain stacked links, matching the New Era account
+   sidebar (no boxes/borders, current item bold black, logout in red). --- */
+.headies-account-side .woocommerce-MyAccount-navigation ul {
+  list-style: none; margin: 0; padding: 0;
+  display: flex; flex-direction: column; gap: 20px;
+}
+/* Storefront's default account nav ships its own icon font, per-item border,
+   and ::before/::after underline decoration — kill all of it with !important
+   so this reads as the plain stacked text list New Era uses, regardless of
+   how specific Storefront's own rule turns out to be. */
+.headies-account-side .woocommerce-MyAccount-navigation li,
 .headies-account-side .woocommerce-MyAccount-navigation li a {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border: 1px solid #e7e7e7;
-  border-top: none;
-  background: #fff;
-  color: #111;
-  padding: 14px 16px;
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  text-decoration: none;
-  transition: background .15s ease, color .15s ease;
+  border: none !important;
+  border-bottom: none !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+  background: none !important;
 }
-.headies-account-side .woocommerce-MyAccount-navigation li a:hover { background: #fafafa; }
-.headies-account-side .woocommerce-MyAccount-navigation li.is-active a {
-  background: var(--headies-primary);
-  color: #fff;
-  border-color: var(--headies-primary);
+.headies-account-side .woocommerce-MyAccount-navigation li::before,
+.headies-account-side .woocommerce-MyAccount-navigation li::after,
+.headies-account-side .woocommerce-MyAccount-navigation li a::before,
+.headies-account-side .woocommerce-MyAccount-navigation li a::after {
+  content: none !important;
+  display: none !important;
 }
-.headies-account-side .nav-arrow { font-size: 11px; opacity: .5; }
-
-.headies-account-dropcard {
-  border: 1px solid #e7e7e7;
-  border-top: none;
-  padding: 18px 16px;
-  background: #fafafa;
-}
-.headies-account-dropcard .dropcard-title {
-  margin: 0 0 6px;
-  font-family: 'Cleo Folk', Georgia, serif;
+.headies-account-side .woocommerce-MyAccount-navigation li a {
+  display: block;
+  color: #8a8a8a;
+  font-family: 'Inter', sans-serif;
   font-size: 15px;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  color: #111;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  text-decoration: none;
+  transition: color .15s ease;
 }
-.headies-account-dropcard .dropcard-body { margin: 0; font-size: 13px; line-height: 1.5; color: #555; }
+.headies-account-side .woocommerce-MyAccount-navigation li a:hover { color: #111; }
+.headies-account-side .woocommerce-MyAccount-navigation li.is-active a { color: #111; font-weight: 700; }
+.headies-account-side .woocommerce-MyAccount-navigation-link--customer-logout a { color: #d93d3d; }
+.headies-account-side .woocommerce-MyAccount-navigation-link--customer-logout a:hover { color: #b52d2d; }
 
 /* --- Shared card + button vocabulary (matches the Hats page) --- */
 .headies-card { border: 1px solid #e7e7e7; background: #fff; }
@@ -1072,7 +1107,7 @@ button.headies-btn-primary {
   background: var(--headies-primary);
   color: #fff;
   padding: 14px 42px;
-  font-family: 'Cleo Folk', Georgia, serif;
+  font-family: 'Fredoka', cursive;
   font-size: 13px;
   font-weight: 800;
   letter-spacing: 0.14em;
@@ -1094,7 +1129,7 @@ button.headies-btn-primary {
 .headies-link-action:hover { color: var(--headies-accent); }
 
 .headies-section-title {
-  font-family: 'Cleo Folk', Georgia, serif;
+  font-family: 'Fredoka', cursive;
   font-size: 18px;
   text-transform: uppercase;
   letter-spacing: 0.03em;
@@ -1103,51 +1138,46 @@ button.headies-btn-primary {
 .headies-section-title--lg { font-size: 24px; margin-bottom: 18px; }
 .headies-account-intro { margin: 0 0 22px; font-size: 14px; color: #555; }
 
-/* --- Dashboard --- */
-.headies-account-greeting {
-  padding: 28px 30px;
-  margin-bottom: 24px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 24px;
-  flex-wrap: wrap;
+/* --- Account sections — plain content blocks separated by a thin divider,
+   no card boxes/backgrounds, matching the New Era account page. --- */
+.headies-account-section { padding: 36px 0; border-bottom: 1px solid #e7e7e7; }
+.headies-account-section:first-child { padding-top: 0; }
+.headies-account-section:last-child { border-bottom: none; }
+.headies-account-section-head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 16px; margin-bottom: 20px;
 }
-.headies-account-greeting h2 {
-  font-family: 'Cleo Folk', Georgia, serif;
-  font-size: 24px;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  margin: 0 0 8px;
+.headies-account-h2 {
+  font-family: 'Fredoka', cursive;
+  font-size: 32px;
+  margin: 0;
+  color: #111;
 }
-.headies-account-greeting p { margin: 0; font-size: 14px; color: #555; line-height: 1.6; max-width: 520px; }
-.headies-account-greeting a { color: var(--headies-primary); font-weight: 700; }
+.headies-account-plain p { margin: 0 0 6px; font-size: 15px; color: #111; }
+.headies-account-plain p:last-child { margin-bottom: 0; }
 
-.headies-stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 32px; }
-.headies-stat { padding: 22px 24px; }
-.headies-stat .stat-label {
-  margin: 0 0 10px;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: #8a8a8a;
+/* Pill-style outline button — New Era uses this for "New address" etc. */
+.headies-pill-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid #111; background: #fff; color: #111;
+  border-radius: 999px; padding: 12px 24px;
+  font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600;
+  text-decoration: none; white-space: nowrap; cursor: pointer;
+  transition: background .15s ease, color .15s ease;
 }
-.headies-stat .stat-value { margin: 0; font-family: 'Cleo Folk', Georgia, serif; font-size: 32px; color: var(--headies-primary); }
+.headies-pill-btn:hover { background: #111; color: #fff; }
 
-.headies-recent-order { display: flex; align-items: center; gap: 20px; padding: 18px 20px; }
-.headies-recent-order .recent-thumb { width: 96px; flex: none; background: #f4f4f4; }
-.headies-recent-order .recent-thumb img { display: block; width: 100%; height: auto; }
-.headies-recent-order .recent-meta { flex: 1; }
-.headies-recent-order .recent-name {
-  margin: 0 0 4px;
-  font-size: 13px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-}
-.headies-recent-order .recent-sub { margin: 0; font-size: 13px; color: #777; }
-.headies-recent-order .recent-total { font-weight: 800; font-size: 14px; }
+.headies-order-preview-row { display: flex; align-items: center; gap: 18px; padding: 16px 0; border-bottom: 1px solid #f0f0f0; }
+.headies-order-preview-row:last-child { border-bottom: none; }
+.headies-order-preview-thumb { width: 64px; flex: none; background: #f4f4f4; }
+.headies-order-preview-thumb img { display: block; width: 100%; height: auto; }
+.headies-order-preview-meta { flex: 1; min-width: 0; }
+.headies-order-preview-name { margin: 0 0 3px; font-size: 14px; font-weight: 600; color: #111; }
+.headies-order-preview-sub { margin: 0; font-size: 13px; color: #8a8a8a; }
+.headies-order-preview-total { font-weight: 600; font-size: 14px; white-space: nowrap; }
+
+.headies-account-view-all { display: inline-block; margin-top: 16px; font-size: 13px; font-weight: 600; color: #111; text-decoration: underline; }
+.headies-account-view-all:hover { color: var(--headies-primary); }
 
 /* --- Status pills --- */
 .headies-status {
@@ -1200,20 +1230,24 @@ button.headies-btn-primary {
 .headies-empty { padding: 44px 32px; text-align: center; }
 .headies-empty p { margin: 0 0 22px; font-size: 14px; color: #555; }
 
-/* --- Addresses --- */
-.headies-address-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-.headies-address { padding: 26px 28px; }
-.headies-address h3 {
-  font-family: 'Cleo Folk', Georgia, serif;
-  font-size: 16px;
+/* --- Addresses — plain blocks in a row, no card boxes. --- */
+.headies-address-row { display: flex; flex-wrap: wrap; gap: 40px; }
+.headies-address-block { min-width: 220px; }
+.headies-address-block h3 {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  letter-spacing: 0.03em;
-  margin: 0 0 14px;
+  color: #8a8a8a;
+  margin: 0 0 10px;
 }
-.headies-address address { margin: 0 0 20px; font-style: normal; font-size: 14px; line-height: 1.8; color: #333; }
+.headies-address-block address { margin: 0 0 12px; font-style: normal; font-size: 15px; line-height: 1.7; color: #111; }
+.headies-address-block a { font-size: 13px; font-weight: 600; color: #111; text-decoration: underline; }
+.headies-address-block a:hover { color: var(--headies-primary); }
 
 /* --- Forms --- */
-.headies-form { padding: 30px 32px; }
+.headies-form { padding: 0; }
 .headies-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px 24px; }
 .headies-form-grid .form-row--wide,
 .headies-form-grid .form-row-wide { grid-column: span 2; }
@@ -1242,7 +1276,7 @@ button.headies-btn-primary {
   border-radius: 0;
   box-shadow: none;
   padding: 12px 14px;
-  font-family: 'Nunito', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 14px;
   color: #111;
   background: #fff;
@@ -1250,16 +1284,70 @@ button.headies-btn-primary {
 .headies-account .headies-form input:focus,
 .headies-account .headies-form select:focus { outline: none; border-color: var(--headies-primary); }
 
-.headies-fieldset { border: none; padding: 22px 0 0; margin: 24px 0 0; border-top: 1px solid #e7e7e7; }
-.headies-fieldset legend {
-  padding: 0 0 16px;
-  font-family: 'Cleo Folk', Georgia, serif;
-  font-size: 16px;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  color: #111;
+/* WooCommerce core JS wraps every password field in .password-input and
+   appends its own show/hide toggle button — Storefront/WP theme up the
+   chain gives it a solid blue block by default. Reset it to a plain,
+   minimal icon that matches the rest of the form instead. Unscoped (not
+   just .headies-account) so it also covers the login/registration forms. */
+.password-input { position: relative; }
+.password-input input[type="password"] { padding-right: 42px !important; }
+.show-password-input {
+  position: absolute !important;
+  top: 50% !important; right: 4px !important; left: auto !important; bottom: auto !important;
+  transform: translateY(-50%);
+  width: 32px !important; height: 32px !important;
+  border: none !important;
+  background: none !important;
+  box-shadow: none !important;
+  border-radius: 50% !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  color: #8a8a8a !important;
+  transition: color .15s ease, background .15s ease;
 }
+.show-password-input:hover { color: #111 !important; background: #f4f4f4 !important; }
+
+.headies-account-password-trigger { margin: 18px 0 0; }
+.headies-account-password-trigger .headies-link-action {
+  background: none; border: none; padding: 0; cursor: pointer;
+  text-decoration: underline; text-underline-offset: 3px;
+}
+
 .headies-form-actions { margin: 26px 0 0; padding-top: 22px; border-top: 1px solid #e7e7e7; }
+
+/* --- Change-password popout (triggered from the account details form) --- */
+.headies-modal[hidden] { display: none; }
+.headies-modal {
+  position: fixed; inset: 0; z-index: 1000;
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+}
+.headies-modal-overlay {
+  position: absolute; inset: 0;
+  background: rgba(11, 24, 41, 0.55);
+}
+.headies-modal-panel {
+  position: relative;
+  width: 100%; max-width: 460px;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  background: #fff;
+  padding: 36px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+}
+.headies-modal-close {
+  position: absolute; top: 14px; right: 14px;
+  width: 32px; height: 32px;
+  display: flex; align-items: center; justify-content: center;
+  border: none; background: none; box-shadow: none;
+  font-size: 24px; line-height: 1; color: #8a8a8a; cursor: pointer;
+  border-radius: 50%;
+}
+.headies-modal-close:hover { color: #111; background: #f4f4f4; }
+.headies-modal-panel .headies-form-grid { grid-template-columns: 1fr; margin-top: 22px; }
+.headies-modal-panel .headies-form-grid .form-row--wide { grid-column: span 1; }
+.headies-modal-hint { margin: 18px 0 0; font-size: 12.5px; line-height: 1.6; color: #8a8a8a; }
+.headies-modal-panel .headies-btn-primary { margin-top: 22px; width: 100%; }
 
 /* --- Notices --- */
 .headies-account .woocommerce-message,
@@ -1272,12 +1360,16 @@ button.headies-btn-primary {
 
 @media (max-width: 900px) {
   .headies-account { padding: 0 20px 60px; }
-  .headies-account-layout { grid-template-columns: 1fr; gap: 32px; }
-  .headies-stat-grid { grid-template-columns: 1fr; }
-  .headies-address-grid { grid-template-columns: 1fr; }
+  .headies-account-layout {
+    grid-template-columns: 1fr;
+    grid-template-areas: "header" "sidebar" "content";
+    row-gap: 32px;
+  }
+  .headies-address-row { flex-direction: column; gap: 24px; }
   .headies-form-grid { grid-template-columns: 1fr; }
   .headies-form-grid .form-row--wide { grid-column: span 1; }
-  .headies-account-greeting { flex-direction: column; align-items: flex-start; }
+  .headies-account-header h1 { font-size: 36px; }
+  .headies-account-h2 { font-size: 26px; }
 }
 
 /* ===== LOGIN (split-screen) =====
@@ -1329,7 +1421,7 @@ body.woocommerce-account-login .site-main { padding-top: 0; padding-bottom: 0; m
 .headies-login-form-panel:has(#register:target) #login.headies-login-view { display: none; }
 
 .headies-login-heading {
-  font-family: 'Cleo Folk', Georgia, serif;
+  font-family: 'Fredoka', cursive;
   font-size: 40px;
   font-weight: 800;
   text-transform: uppercase;
@@ -1340,7 +1432,7 @@ body.woocommerce-account-login .site-main { padding-top: 0; padding-bottom: 0; m
 }
 
 .headies-login-subtext {
-  font-family: 'Nunito', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 15px;
   color: #666;
   margin: 0 0 32px;
@@ -1358,7 +1450,7 @@ body.woocommerce-account-login .site-main { padding-top: 0; padding-bottom: 0; m
   border-radius: 0;
   box-shadow: none;
   padding: 15px 16px;
-  font-family: 'Nunito', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 15px;
   color: #111;
   background: #fff;
@@ -1405,7 +1497,7 @@ body.woocommerce-account-login .site-main { padding-top: 0; padding-bottom: 0; m
   background: var(--headies-primary);
   color: #fff;
   padding: 16px;
-  font-family: 'Cleo Folk', Georgia, serif;
+  font-family: 'Fredoka', cursive;
   font-size: 14px;
   font-weight: 800;
   letter-spacing: 0.14em;
@@ -1522,7 +1614,7 @@ body.page-wishlist .headies-nav:not(.nav-scrolled):not(:hover) .nav-logo .logo-h
   margin-top: 10px;
 }
 .headies-wishlist-title-row h1 {
-  font-family: 'Cleo Folk', Georgia, serif;
+  font-family: 'Fredoka', cursive;
   font-size: 34px;
   font-weight: 800;
   text-transform: uppercase;
@@ -1641,7 +1733,7 @@ body.page-wishlist .headies-nav:not(.nav-scrolled):not(:hover) .nav-logo .logo-h
   max-width: 1400px;
   margin: 0 auto;
   padding: 0 40px 100px;
-  font-family: 'Nunito', sans-serif;
+  font-family: 'Inter', sans-serif;
   color: #111;
 }
 
@@ -1737,12 +1829,36 @@ body.woocommerce-cart .headies-nav:not(.nav-scrolled):not(:hover) .nav-logo .log
 .headies-order-summary { padding: 28px 26px; }
 .headies-order-summary .headies-section-title { margin-bottom: 18px; }
 
+.headies-checkout-coupon { margin: 4px 0 20px; padding-bottom: 20px; border-bottom: 1px solid #e7e7e7; }
+.headies-checkout-coupon .woocommerce-form-coupon-toggle .woocommerce-info {
+  margin: 0; padding: 0; border: none; background: none;
+  font-size: 13px; color: #555; list-style: none;
+}
+.headies-checkout-coupon .showcoupon { color: var(--headies-primary); font-weight: 700; text-decoration: underline; }
+.headies-checkout-coupon .showcoupon:hover { color: var(--headies-accent); }
+.headies-checkout-coupon .checkout_coupon { display: flex; gap: 10px; margin-top: 12px; }
+.headies-checkout-coupon .checkout_coupon .form-row { margin: 0; flex: 1; }
+.headies-checkout-coupon .checkout_coupon .form-row-last { flex: none; }
+.headies-checkout-coupon .checkout_coupon input#coupon_code {
+  width: 100%; box-sizing: border-box;
+  border: 1px solid #e7e7e7; border-radius: 0;
+  padding: 12px 14px; font-family: 'Inter', sans-serif; font-size: 13px;
+}
+.headies-checkout-coupon .checkout_coupon input#coupon_code:focus { outline: none; border-color: var(--headies-primary); }
+.headies-checkout-coupon .checkout_coupon button[name="apply_coupon"] {
+  border: 1px solid var(--headies-primary); background: #fff; color: var(--headies-primary);
+  padding: 0 20px; font-family: 'Inter', sans-serif; font-size: 12.5px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.06em; cursor: pointer;
+}
+.headies-checkout-coupon .checkout_coupon button[name="apply_coupon"]:hover { background: var(--headies-primary); color: #fff; }
+.headies-checkout-coupon .checkout_coupon .clear { display: none; }
+
 .headies-summary-table { width: 100%; border-collapse: collapse; font-size: 14px; }
 .headies-summary-table tr th,
 .headies-summary-table tr td { padding: 10px 0; text-align: left; font-weight: 400; color: #333; }
 .headies-summary-table tr td { text-align: right; }
 .headies-summary-table tr.order-total th,
-.headies-summary-table tr.order-total td { border-top: 1px solid #e7e7e7; padding-top: 16px; font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 22px; color: var(--headies-primary); }
+.headies-summary-table tr.order-total td { border-top: 1px solid #e7e7e7; padding-top: 16px; font-family: 'Inter', sans-serif; font-weight: 800; font-size: 22px; color: var(--headies-primary); }
 .headies-summary-table tr.cart-discount th,
 .headies-summary-table tr.cart-discount td { color: var(--headies-primary); }
 
@@ -1764,7 +1880,7 @@ body.woocommerce-cart .headies-nav:not(.nav-scrolled):not(:hover) .nav-logo .log
 }
 .headies-summary-drop-note .drop-note-title {
   margin: 0 0 4px;
-  font-family: 'Cleo Folk', Georgia, serif;
+  font-family: 'Fredoka', cursive;
   font-size: 13px;
   text-transform: uppercase;
   letter-spacing: 0.03em;
@@ -1840,7 +1956,7 @@ body.woocommerce-cart .headies-nav:not(.nav-scrolled):not(:hover) .nav-logo .log
   max-width: 1400px;
   margin: 0 auto;
   padding: 34px 40px 100px;
-  font-family: 'Nunito', sans-serif;
+  font-family: 'Inter', sans-serif;
   color: #111;
 }
 
@@ -1853,7 +1969,7 @@ body.woocommerce-cart .headies-nav:not(.nav-scrolled):not(:hover) .nav-logo .log
   margin-bottom: 30px;
 }
 .headies-checkout-title-row h1 {
-  font-family: 'Cleo Folk', Georgia, serif;
+  font-family: 'Fredoka', cursive;
   font-size: 34px;
   text-transform: uppercase;
   letter-spacing: 0.03em;
@@ -1904,7 +2020,7 @@ body.woocommerce-cart .headies-nav:not(.nav-scrolled):not(:hover) .nav-logo .log
   border-radius: 0;
   box-shadow: none;
   padding: 13px 14px;
-  font-family: 'Nunito', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 14px;
   color: #111;
   background: #fff;
@@ -1916,7 +2032,7 @@ body.woocommerce-cart .headies-nav:not(.nav-scrolled):not(:hover) .nav-logo .log
 .headies-checkout-fields textarea { min-height: 90px; resize: vertical; }
 
 .headies-subheading {
-  font-family: 'Cleo Folk', Georgia, serif;
+  font-family: 'Fredoka', cursive;
   font-size: 15px;
   text-transform: uppercase;
   letter-spacing: 0.03em;
@@ -2044,4 +2160,120 @@ body.woocommerce-checkout .headies-nav:not(.nav-scrolled):not(:hover) .nav-logo 
 @media (max-width: 900px) {
   .headies-thankyou-layout { grid-template-columns: 1fr; }
   .headies-thankyou-meta { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ===== CART DRAWER (New Era-style slide-out) ===== */
+.headies-drawer[hidden] { display: none; }
+.headies-drawer {
+  position: fixed; inset: 0; z-index: 1200;
+  display: flex; justify-content: flex-end;
+}
+.headies-drawer-overlay {
+  position: absolute; inset: 0;
+  background: rgba(11, 24, 41, 0.5);
+  opacity: 0;
+  transition: opacity .3s ease;
+}
+.headies-drawer.is-open .headies-drawer-overlay { opacity: 1; }
+
+.headies-drawer-panel {
+  position: relative;
+  width: 100%; max-width: 420px;
+  height: 100%;
+  background: #fff;
+  display: flex; flex-direction: column;
+  transform: translateX(100%);
+  transition: transform .32s cubic-bezier(.4, 0, .2, 1);
+}
+.headies-drawer.is-open .headies-drawer-panel { transform: translateX(0); }
+
+.headies-drawer-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 22px 24px;
+  border-bottom: 1px solid #e7e7e7;
+  flex: none;
+}
+.headies-drawer-head h2 {
+  font-family: 'Fredoka', cursive;
+  font-size: 20px;
+  margin: 0;
+  color: #111;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+.headies-drawer-close {
+  width: 32px; height: 32px;
+  display: flex; align-items: center; justify-content: center;
+  border: none; background: none; box-shadow: none;
+  font-size: 26px; line-height: 1; color: #8a8a8a; cursor: pointer;
+  border-radius: 50%;
+}
+.headies-drawer-close:hover { color: #111; background: #f4f4f4; }
+
+.headies-drawer-body {
+  flex: 1; overflow-y: auto;
+  padding: 8px 24px;
+}
+
+.headies-drawer-item {
+  display: flex; gap: 16px;
+  padding: 20px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+.headies-drawer-item:last-child { border-bottom: none; }
+.headies-drawer-item-image { width: 76px; flex: none; background: #f4f4f4; }
+.headies-drawer-item-image img { display: block; width: 100%; height: auto; }
+.headies-drawer-item-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.headies-drawer-item-name { font-size: 13.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em; line-height: 1.35; }
+.headies-drawer-item-name a { color: #111; text-decoration: none; }
+.headies-drawer-item-info .wc-item-meta { margin: 0; font-size: 12px; color: #8a8a8a; }
+.headies-drawer-item-price { font-size: 13px; font-weight: 700; color: #111; }
+
+.headies-drawer-item-actions {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-top: 4px;
+}
+.headies-drawer-qty { display: inline-flex; align-items: center; border: 1px solid #e7e7e7; }
+.headies-drawer-qty-btn {
+  width: 26px; height: 26px;
+  display: flex; align-items: center; justify-content: center;
+  border: none; background: none; box-shadow: none;
+  font-size: 14px; cursor: pointer; color: #111; padding: 0;
+}
+.headies-drawer-qty-btn:hover { background: var(--headies-primary); color: #fff; }
+.headies-drawer-qty-value { min-width: 24px; text-align: center; font-size: 12.5px; font-weight: 700; }
+.headies-drawer-item-remove {
+  border: none; background: none; box-shadow: none; padding: 0;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+  color: #8a8a8a; text-decoration: underline; cursor: pointer;
+}
+.headies-drawer-item-remove:hover { color: var(--headies-primary); }
+
+.headies-drawer-empty { padding: 60px 0; text-align: center; }
+.headies-drawer-empty p { margin: 0 0 20px; font-size: 14px; color: #555; }
+
+.headies-drawer-foot {
+  flex: none;
+  padding: 20px 24px 24px;
+  border-top: 1px solid #e7e7e7;
+}
+.headies-drawer-panel.is-empty .headies-drawer-foot { display: none; }
+.headies-drawer-subtotal {
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: 14px; font-weight: 700; color: #111;
+  margin-bottom: 16px;
+}
+.headies-drawer-checkout {
+  display: block; width: 100%; text-align: center;
+  text-decoration: none; margin-bottom: 10px;
+}
+.headies-drawer-view-cart {
+  display: block; text-align: center;
+  font-size: 12.5px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+  color: #111; text-decoration: underline;
+}
+.headies-drawer-view-cart:hover { color: var(--headies-primary); }
+
+@media (max-width: 480px) {
+  .headies-drawer-panel { max-width: 100%; }
 }

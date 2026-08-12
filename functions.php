@@ -9,6 +9,18 @@ function headies_enqueue_styles() {
 }
 add_action( 'wp_enqueue_scripts', 'headies_enqueue_styles' );
 
+// Storefront pulls "Source Sans Pro" from the Google Fonts CDN by default.
+// Our own CSS overrides font-family everywhere it would show up, so it's
+// dead weight — but it's still an external request, which defeats the
+// point of self-hosting Fredoka/Inter. Drop it.
+function headies_dequeue_storefront_fonts() {
+    wp_dequeue_style( 'storefront-fonts' );
+    wp_deregister_style( 'storefront-fonts' );
+    wp_dequeue_style( 'source-sans-pro' );
+    wp_deregister_style( 'source-sans-pro' );
+}
+add_action( 'wp_enqueue_scripts', 'headies_dequeue_storefront_fonts', 20 );
+
 // Restrict front-end search to products. Deliberately done here via
 // pre_get_posts rather than a `post_type=product` hidden field on the
 // search form — setting post_type in the query string itself makes
@@ -47,6 +59,70 @@ function headies_account_full_width_body_class( $classes ) {
         $classes[] = 'woocommerce-account-login';
     }
     return $classes;
+}
+
+// My Account nav, trimmed to what the store actually has (no downloads,
+// no rewards/interests — this isn't Shopify) and relabelled to match.
+function headies_account_menu_items( $items ) {
+    $keep = array(
+        'dashboard'      => 'My Account',
+        'edit-account'   => 'Account Details',
+        'edit-address'   => 'Address Book',
+        'orders'         => 'Order History',
+        'customer-logout' => 'Logout',
+    );
+    $out = array();
+    foreach ( $keep as $endpoint => $label ) {
+        if ( isset( $items[ $endpoint ] ) ) {
+            $out[ $endpoint ] = $label;
+        }
+    }
+    return $out;
+}
+add_filter( 'woocommerce_account_menu_items', 'headies_account_menu_items' );
+
+// The current endpoint's own label doubles as the page's big H1 (matching
+// the New Era reference — "My Account", "Address Book", "Order History"
+// each get their own page title instead of a single static one).
+function headies_account_page_title() {
+    $endpoint = WC()->query->get_current_endpoint();
+    if ( ! $endpoint || 'dashboard' === $endpoint ) {
+        return 'My Account';
+    }
+    $items = wc_get_account_menu_items();
+    return isset( $items[ $endpoint ] ) ? $items[ $endpoint ] : 'My Account';
+}
+
+/**
+ * "New address" pill + prev/next arrows next to the Address Book heading.
+ * WooCommerce only supports two fixed address slots (billing/shipping) —
+ * there's no arbitrary multi-address book to page through — so "New address"
+ * routes to whichever of the two isn't set up yet (shipping first, since
+ * that's the one usually missing), and the arrows are inert once there's
+ * nothing left to page between. Shared by the dashboard preview and the
+ * full Address Book page so both stay in sync.
+ */
+function headies_render_address_book_actions() {
+    $has_shipping = ! wc_ship_to_billing_address_only() && (bool) wc_get_account_formatted_address( 'shipping' );
+    $has_billing  = (bool) wc_get_account_formatted_address( 'billing' );
+
+    if ( ! $has_shipping && ! wc_ship_to_billing_address_only() ) {
+        $new_address_url = wc_get_endpoint_url( 'edit-address', 'shipping' );
+    } elseif ( ! $has_billing ) {
+        $new_address_url = wc_get_endpoint_url( 'edit-address', 'billing' );
+    } else {
+        $new_address_url = wc_get_endpoint_url( 'edit-address', wc_ship_to_billing_address_only() ? 'billing' : 'shipping' );
+    }
+
+    ob_start();
+    ?>
+    <div class="headies-address-book-actions">
+        <a href="<?php echo esc_url( $new_address_url ); ?>" class="headies-pill-btn headies-pill-btn--dark">New address</a>
+        <button type="button" class="headies-address-nav-arrow" aria-label="Previous address" disabled>&lsaquo;</button>
+        <button type="button" class="headies-address-nav-arrow" aria-label="Next address" disabled>&rsaquo;</button>
+    </div>
+    <?php
+    return ob_get_clean();
 }
 
 // The Wishlist page has no hero image behind the header either, so it needs
@@ -580,6 +656,15 @@ function headies_enqueue_wishlist_script() {
 }
 add_action( 'wp_enqueue_scripts', 'headies_enqueue_wishlist_script' );
 
+function headies_enqueue_cart_drawer_script() {
+    if ( ! function_exists( 'WC' ) ) {
+        return;
+    }
+    $path = get_stylesheet_directory() . '/js/cart-drawer.js';
+    wp_enqueue_script( 'headies-cart-drawer', get_stylesheet_directory_uri() . '/js/cart-drawer.js', array( 'headies-wishlist' ), file_exists( $path ) ? filemtime( $path ) : false, true );
+}
+add_action( 'wp_enqueue_scripts', 'headies_enqueue_cart_drawer_script' );
+
 /**
  * Shared product card — the Hats grid, Accessories grid, Search results,
  * and (with hide_info) the pre-drop reveal grid on a drop's own page all
@@ -883,6 +968,167 @@ add_filter( 'woocommerce_product_single_add_to_cart_text', 'headies_add_to_bag_t
 
 // ===== CART & CHECKOUT =====
 
+// --- Slide-out cart drawer (New Era-style) — full page at /cart/ stays as
+// a fallback, this is the fast add/update/remove path from the nav icon. ---
+
+function headies_cart_drawer_state() {
+    $cart = function_exists( 'WC' ) ? WC()->cart : null;
+    if ( ! $cart ) {
+        return array(
+            'items_html'    => '',
+            'count'         => 0,
+            'subtotal_html' => '',
+            'is_empty'      => true,
+        );
+    }
+
+    $is_empty = $cart->is_empty();
+
+    if ( $is_empty ) {
+        $items_html = sprintf(
+            '<div class="headies-drawer-empty"><p>Your bag is empty.</p><a href="%s" class="headies-pill-btn headies-pill-btn--dark">Continue Shopping</a></div>',
+            esc_url( wc_get_page_permalink( 'shop' ) ? wc_get_page_permalink( 'shop' ) : home_url( '/hats' ) )
+        );
+    } else {
+        ob_start();
+        foreach ( $cart->get_cart() as $cart_item_key => $cart_item ) {
+            $_product = apply_filters( 'woocommerce_cart_item_product', $cart_item['data'], $cart_item, $cart_item_key );
+            if ( ! ( $_product instanceof WC_Product ) || ! $_product->exists() || $cart_item['quantity'] <= 0 ) {
+                continue;
+            }
+            $permalink = $_product->is_visible() ? $_product->get_permalink( $cart_item ) : '';
+            $thumbnail = $_product->get_image( 'thumbnail' );
+            $name      = $_product->get_name();
+            ?>
+            <div class="headies-drawer-item" data-cart-item-key="<?php echo esc_attr( $cart_item_key ); ?>">
+                <div class="headies-drawer-item-image">
+                    <?php if ( $permalink ) : ?>
+                        <a href="<?php echo esc_url( $permalink ); ?>"><?php echo $thumbnail; // phpcs:ignore ?></a>
+                    <?php else : ?>
+                        <?php echo $thumbnail; // phpcs:ignore ?>
+                    <?php endif; ?>
+                </div>
+                <div class="headies-drawer-item-info">
+                    <span class="headies-drawer-item-name">
+                        <?php if ( $permalink ) : ?>
+                            <a href="<?php echo esc_url( $permalink ); ?>"><?php echo esc_html( $name ); ?></a>
+                        <?php else : ?>
+                            <?php echo esc_html( $name ); ?>
+                        <?php endif; ?>
+                    </span>
+                    <?php echo wc_get_formatted_cart_item_data( $cart_item ); // phpcs:ignore ?>
+                    <span class="headies-drawer-item-price"><?php echo wp_kses_post( WC()->cart->get_product_price( $_product ) ); ?></span>
+                    <div class="headies-drawer-item-actions">
+                        <div class="headies-drawer-qty">
+                            <button type="button" class="headies-drawer-qty-btn" data-op="minus" aria-label="Decrease quantity">&minus;</button>
+                            <span class="headies-drawer-qty-value"><?php echo esc_html( $cart_item['quantity'] ); ?></span>
+                            <button type="button" class="headies-drawer-qty-btn" data-op="plus" aria-label="Increase quantity">+</button>
+                        </div>
+                        <button type="button" class="headies-drawer-item-remove">Remove</button>
+                    </div>
+                </div>
+            </div>
+            <?php
+        }
+        $items_html = ob_get_clean();
+    }
+
+    return array(
+        'items_html'    => $items_html,
+        'count'         => $cart->get_cart_contents_count(),
+        'subtotal_html' => $cart->get_cart_subtotal(),
+        'is_empty'      => $is_empty,
+    );
+}
+
+function headies_render_cart_drawer() {
+    if ( ! function_exists( 'WC' ) || ! WC()->cart ) {
+        return;
+    }
+    $state = headies_cart_drawer_state();
+    ?>
+    <div class="headies-drawer" id="headies-cart-drawer" hidden>
+        <div class="headies-drawer-overlay" data-drawer-close></div>
+        <div class="headies-drawer-panel<?php echo $state['is_empty'] ? ' is-empty' : ''; ?>" role="dialog" aria-modal="true" aria-labelledby="headies-cart-drawer-title">
+            <div class="headies-drawer-head">
+                <h2 id="headies-cart-drawer-title">Your Bag (<span class="headies-drawer-count"><?php echo esc_html( $state['count'] ); ?></span>)</h2>
+                <button type="button" class="headies-drawer-close" data-drawer-close aria-label="Close">&times;</button>
+            </div>
+            <div class="headies-drawer-body"><?php echo $state['items_html']; // phpcs:ignore ?></div>
+            <div class="headies-drawer-foot">
+                <div class="headies-drawer-subtotal">
+                    <span>Subtotal</span>
+                    <span class="headies-drawer-subtotal-value"><?php echo wp_kses_post( $state['subtotal_html'] ); ?></span>
+                </div>
+                <a href="<?php echo esc_url( wc_get_checkout_url() ); ?>" class="headies-btn-primary headies-drawer-checkout">Checkout</a>
+                <a href="<?php echo esc_url( wc_get_cart_url() ); ?>" class="headies-drawer-view-cart">View Bag</a>
+            </div>
+        </div>
+    </div>
+    <?php
+}
+add_action( 'wp_footer', 'headies_render_cart_drawer' );
+
+function headies_ajax_cart_drawer_response() {
+    if ( ! function_exists( 'WC' ) || ! WC()->cart ) {
+        wp_send_json_error();
+    }
+    WC()->cart->calculate_totals();
+    $state = headies_cart_drawer_state();
+    wp_send_json_success( array(
+        'itemsHtml'    => $state['items_html'],
+        'count'        => $state['count'],
+        'subtotalHtml' => wp_kses_post( $state['subtotal_html'] ),
+        'isEmpty'      => $state['is_empty'],
+    ) );
+}
+
+function headies_ajax_cart_drawer_refresh() {
+    check_ajax_referer( 'headies_wishlist', 'nonce' );
+    headies_ajax_cart_drawer_response();
+}
+add_action( 'wp_ajax_headies_cart_drawer_refresh', 'headies_ajax_cart_drawer_refresh' );
+add_action( 'wp_ajax_nopriv_headies_cart_drawer_refresh', 'headies_ajax_cart_drawer_refresh' );
+
+function headies_ajax_cart_drawer_update() {
+    check_ajax_referer( 'headies_wishlist', 'nonce' );
+    $cart_item_key = isset( $_POST['cart_item_key'] ) ? sanitize_text_field( wp_unslash( $_POST['cart_item_key'] ) ) : '';
+    $op            = isset( $_POST['op'] ) ? sanitize_text_field( wp_unslash( $_POST['op'] ) ) : '';
+    $cart          = function_exists( 'WC' ) ? WC()->cart : null;
+
+    if ( ! $cart || ! $cart_item_key || ! isset( $cart->get_cart()[ $cart_item_key ] ) ) {
+        wp_send_json_error();
+    }
+
+    $current = $cart->get_cart()[ $cart_item_key ]['quantity'];
+    $new_qty = 'plus' === $op ? $current + 1 : $current - 1;
+
+    if ( $new_qty < 1 ) {
+        $cart->remove_cart_item( $cart_item_key );
+    } else {
+        $cart->set_quantity( $cart_item_key, $new_qty, true );
+    }
+
+    headies_ajax_cart_drawer_response();
+}
+add_action( 'wp_ajax_headies_cart_drawer_update', 'headies_ajax_cart_drawer_update' );
+add_action( 'wp_ajax_nopriv_headies_cart_drawer_update', 'headies_ajax_cart_drawer_update' );
+
+function headies_ajax_cart_drawer_remove() {
+    check_ajax_referer( 'headies_wishlist', 'nonce' );
+    $cart_item_key = isset( $_POST['cart_item_key'] ) ? sanitize_text_field( wp_unslash( $_POST['cart_item_key'] ) ) : '';
+    $cart          = function_exists( 'WC' ) ? WC()->cart : null;
+
+    if ( ! $cart || ! $cart_item_key || ! isset( $cart->get_cart()[ $cart_item_key ] ) ) {
+        wp_send_json_error();
+    }
+
+    $cart->remove_cart_item( $cart_item_key );
+    headies_ajax_cart_drawer_response();
+}
+add_action( 'wp_ajax_headies_cart_drawer_remove', 'headies_ajax_cart_drawer_remove' );
+add_action( 'wp_ajax_nopriv_headies_cart_drawer_remove', 'headies_ajax_cart_drawer_remove' );
+
 // Keep the cart sidebar to just the order summary — no cross-sell upsells.
 remove_action( 'woocommerce_cart_collaterals', 'woocommerce_cross_sell_display', 10 );
 
@@ -1119,11 +1365,6 @@ function headies_bootstrap_shipping_zone() {
             'method_id' => 'flat_rate',
             'title'     => 'Harare Courier',
             'cost'      => '5',
-        ),
-        array(
-            'method_id' => 'flat_rate',
-            'title'     => 'Nationwide Courier',
-            'cost'      => '8',
         ),
         array(
             'method_id' => 'local_pickup',

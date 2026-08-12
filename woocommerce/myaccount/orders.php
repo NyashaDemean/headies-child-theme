@@ -10,8 +10,6 @@ defined( 'ABSPATH' ) || exit;
 do_action( 'woocommerce_before_account_orders', $has_orders );
 ?>
 
-<h2 class="headies-section-title headies-section-title--lg">Orders</h2>
-
 <?php if ( $has_orders ) : ?>
 
   <table class="woocommerce-orders-table woocommerce-MyAccount-orders headies-table shop_table shop_table_responsive my_account_orders account-orders-table">
@@ -81,9 +79,9 @@ do_action( 'woocommerce_before_account_orders', $has_orders );
 
 <?php else : ?>
 
-  <div class="headies-card headies-empty">
-    <p>No orders yet.</p>
-    <a class="headies-btn-outline" href="<?php echo esc_url( home_url( '/hats' ) ); ?>">Browse hats</a>
+  <div class="headies-empty">
+    <p>You haven't placed any orders yet.</p>
+    <a class="headies-pill-btn" href="<?php echo esc_url( home_url( '/hats' ) ); ?>">Browse hats</a>
   </div>
 
 <?php endif; ?>
