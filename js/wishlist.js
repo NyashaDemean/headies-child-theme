@@ -79,6 +79,7 @@ document.addEventListener( 'DOMContentLoaded', function () {
 			setCounts( '.cart-count', response.data.cart_count );
 			button.textContent = 'In Cart';
 			button.classList.add( 'is-in-cart' );
+			document.dispatchEvent( new CustomEvent( 'headies:cart-updated', { detail: { open: true } } ) );
 		} ).catch( function () {
 			button.disabled = false;
 			button.textContent = 'Add to Cart';

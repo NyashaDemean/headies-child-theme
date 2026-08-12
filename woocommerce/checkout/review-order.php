@@ -35,6 +35,12 @@ defined( 'ABSPATH' ) || exit;
 	?>
 </div>
 
+<?php if ( wc_coupons_enabled() ) : ?>
+	<div class="headies-checkout-coupon">
+		<?php woocommerce_checkout_coupon_form(); ?>
+	</div>
+<?php endif; ?>
+
 <table class="headies-summary-table">
 
 	<tr class="cart-subtotal">

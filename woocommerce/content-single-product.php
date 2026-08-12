@@ -174,17 +174,6 @@ $size_values = $size_attr ? array_map( 'trim', explode( ',', $size_attr ) ) : ar
 		</section>
 	<?php endif; ?>
 
-	<div class="headies-bag-bar">
-		<div class="headies-bag-bar-inner">
-			<div class="headies-bag-thumb"><img src="" alt=""></div>
-			<div>
-				<p class="headies-bag-line"></p>
-				<p class="headies-bag-total"></p>
-			</div>
-			<a href="<?php echo esc_url( wc_get_cart_url() ); ?>" class="headies-bag-checkout">Checkout</a>
-		</div>
-	</div>
-
 </div>
 
 <?php do_action( 'woocommerce_after_single_product' ); ?>

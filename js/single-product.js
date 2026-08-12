@@ -104,13 +104,12 @@ document.addEventListener( 'DOMContentLoaded', function () {
 		} );
 	} );
 
-	// --- Add to cart via AJAX + sticky bag bar ---
+	// --- Add to cart via AJAX, then open the cart drawer ---
 	// WooCommerce's native ajax_add_to_cart / added_to_cart event isn't wired
 	// up on single-product pages by default (that's a shop-loop feature), so
 	// this posts to the same headies_add_to_cart endpoint the wishlist
-	// "quick add" buttons use, then reveals the bag bar itself.
-	var form   = layout.querySelector( 'form.cart' );
-	var bagBar = document.querySelector( '.headies-bag-bar' );
+	// "quick add" buttons use, then tells the cart drawer to refresh + open.
+	var form = layout.querySelector( 'form.cart' );
 
 	if ( form && typeof headiesWishlist !== 'undefined' ) {
 		form.addEventListener( 'submit', function ( e ) {
@@ -152,18 +151,7 @@ document.addEventListener( 'DOMContentLoaded', function () {
 						el.textContent = response.data.cart_count;
 					} );
 
-					if ( bagBar ) {
-						var qty = response.data.quantity || 1;
-						bagBar.querySelector( '.headies-bag-line' ).textContent =
-							1 === qty ? '1 item in your bag' : qty + ' items in your bag';
-						bagBar.querySelector( '.headies-bag-total' ).textContent = response.data.line_total || '';
-						var img = bagBar.querySelector( '.headies-bag-thumb img' );
-						if ( img && response.data.product_image ) {
-							img.src = response.data.product_image;
-							img.alt = response.data.product_name || '';
-						}
-						bagBar.classList.add( 'is-visible' );
-					}
+					document.dispatchEvent( new CustomEvent( 'headies:cart-updated', { detail: { open: true } } ) );
 				} )
 				.catch( function () {
 					button.disabled = false;
