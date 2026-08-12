@@ -43,8 +43,7 @@ do_action( 'woocommerce_before_account_orders', $has_orders );
 
               <?php elseif ( 'order-total' === $column_id ) : ?>
                 <?php
-                /* translators: 1: formatted order total 2: total order items */
-                printf( esc_html_x( '%1\$s for %2\$s item(s)', 'Order number and item count', 'headies' ), wp_kses_post( $order->get_formatted_order_total() ), esc_html( $item_count ) );
+                echo wp_kses_post( sprintf( _n( '%1$s for %2$s item', '%1$s for %2$s items', $item_count, 'headies' ), $order->get_formatted_order_total(), $item_count ) );
                 ?>
 
               <?php elseif ( 'order-actions' === $column_id ) : ?>
