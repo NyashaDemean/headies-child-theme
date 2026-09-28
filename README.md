@@ -31,13 +31,14 @@ parent theme.
 | Page | Template | Notes |
 |---|---|---|
 | Home | `front-page.php` | Hero video, featured drop banner, Drops row, Trending Now |
-| Hats | `page-hats.php` | Full catalog grid — badges auto-switch between New / Coming Soon / Exclusive |
+| Hats | `page-hats.php` | Full catalog grid — badges auto-switch between New / Coming Soon / Exclusive / Sold Out |
 | Accessories | `page-accessories.php` | Same grid design as Hats, its own product category |
-| Drops | `page-drops.php` | Full-bleed hero + Upcoming/Past drop grids (matches Hat Club's drops-archive layout) |
-| Single drop | `taxonomy-product_drop.php` | `/drop/{slug}/` — hero photo, black write-up bar, product grid |
-| Wishlist | `page-wishlist.php` | Cookie/account-backed, AJAX add/remove |
-| Search | `search.php` | Reuses the Hats grid design instead of Storefront's default blog search |
-| Cart / Checkout / My Account | `woocommerce/**` | Fully re-skinned to match the brand, including a stripped-down checkout nav |
+| Drops | `page-drops.php` | Full-bleed hero (photo or video) + Upcoming/Past drop grids (matches Hat Club's drops-archive layout) |
+| Single drop | `taxonomy-product_drop.php` | `/drop/{slug}/` — hero photo, optional showcase video, black write-up bar, product grid |
+| Wishlist | `page-wishlist.php` | Cookie/account-backed, AJAX add/remove, and a "Share List" link anyone can open (no login needed) |
+| Search | Nav search bar | Live AJAX results as you type; a "Popular Searches" + "Trending Now" panel before you type anything |
+| Cart | `woocommerce/cart/cart.php` + `js/cart-drawer.js` | New Era-style slide-out drawer from any "Add to cart", plus a promo code field on checkout |
+| My Account | `woocommerce/myaccount/**` | Rebuilt to match New Era's layout — dashboard, orders, addresses, account details |
 
 ## Drops system
 
@@ -50,6 +51,7 @@ type — same mechanism as the built-in product categories. Manage them under
 - Banner Image — the Drops page hero background for the nearest upcoming drop
 - Card Image — homepage Drops row + Past Drops thumbnail
 - Detail Page Hero — the photo at the top of the drop's own page
+- Showcase Video (optional) — plays on the drop's own page, and as the featured Upcoming Drop's hero background on `/drops`
 - Tagline, and a Full Description (the taxonomy Description field itself is the short blurb)
 
 **Status is derived automatically**, never set by hand:
@@ -73,7 +75,6 @@ Built and tested locally via [Local](https://localwp.com/) at `headies-dev.local
 
 - [ ] Real Paynow account credentials (gateway is wired up, running in test mode)
 - [ ] Domain + hosting
-- [ ] Real social links in the footer
 
 ## Author
 

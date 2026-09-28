@@ -9,6 +9,27 @@ function headies_enqueue_styles() {
 }
 add_action( 'wp_enqueue_scripts', 'headies_enqueue_styles' );
 
+// Storefront's default 'woocommerce' theme support caps the "single" product
+// image (used for both the hats-card front/back photos and the single
+// product gallery) at 416px wide. That's soft on any 2x/3x-DPR phone, which
+// is most of them. Re-declaring the same support at a later priority so it
+// overrides Storefront's instead of being overwritten by it — bumped to
+// 800px, still comfortably under our source photos' native width.
+function headies_increase_product_image_sizes() {
+    add_theme_support( 'woocommerce', array(
+        'single_image_width'    => 800,
+        'thumbnail_image_width' => 324,
+        'product_grid'          => array(
+            'default_rows'    => 4,
+            'min_rows'        => 1,
+            'default_columns' => 3,
+            'min_columns'     => 1,
+            'max_columns'     => 6,
+        ),
+    ) );
+}
+add_action( 'after_setup_theme', 'headies_increase_product_image_sizes', 20 );
+
 // Storefront pulls "Source Sans Pro" from the Google Fonts CDN by default.
 // Our own CSS overrides font-family everywhere it would show up, so it's
 // dead weight — but it's still an external request, which defeats the
@@ -203,6 +224,7 @@ function headies_build_drop_array( $term ) {
     $image_id      = get_term_meta( $term->term_id, 'drop_image_id', true );
     $main_image_id = get_term_meta( $term->term_id, 'drop_main_image_id', true );
     $hero_image_id = get_term_meta( $term->term_id, 'drop_hero_image_id', true );
+    $video_id      = get_term_meta( $term->term_id, 'drop_video_id', true );
 
     return array(
         'id'            => $term->term_id,
@@ -221,6 +243,8 @@ function headies_build_drop_array( $term ) {
         'main_image_id' => $main_image_id,
         'hero_image'    => $hero_image_id ? wp_get_attachment_image_url( $hero_image_id, 'full' ) : '',
         'hero_image_id' => $hero_image_id,
+        'video'         => $video_id ? wp_get_attachment_url( $video_id ) : '',
+        'video_id'      => $video_id,
     );
 }
 
@@ -328,6 +352,10 @@ function headies_nav_scroll_script() {
                     grid.innerHTML = '';
                 }
             }
+            var defaults = searchBar.querySelector( '.nav-search-default' );
+            if ( defaults ) {
+                defaults.hidden = false;
+            }
             if ( searchField ) {
                 searchField.value = '';
             }
@@ -360,9 +388,10 @@ function headies_nav_scroll_script() {
         } );
 
         // --- Live search-as-you-type ---
-        var resultsWrap = searchBar.querySelector( '.nav-search-results' );
-        var resultsGrid = resultsWrap ? resultsWrap.querySelector( '.nav-search-results-grid' ) : null;
-        var viewAllLink = resultsWrap ? resultsWrap.querySelector( '.nav-search-view-all' ) : null;
+        var resultsWrap  = searchBar.querySelector( '.nav-search-results' );
+        var resultsGrid  = resultsWrap ? resultsWrap.querySelector( '.nav-search-results-grid' ) : null;
+        var viewAllLink  = resultsWrap ? resultsWrap.querySelector( '.nav-search-view-all' ) : null;
+        var defaultPanel = searchBar.querySelector( '.nav-search-default' );
         var searchDebounce;
 
         function hideResults() {
@@ -371,6 +400,9 @@ function headies_nav_scroll_script() {
             }
             resultsWrap.hidden = true;
             resultsGrid.innerHTML = '';
+            if ( defaultPanel ) {
+                defaultPanel.hidden = false;
+            }
         }
 
         if ( searchField && resultsWrap && resultsGrid ) {
@@ -381,6 +413,10 @@ function headies_nav_scroll_script() {
                 if ( ! term ) {
                     hideResults();
                     return;
+                }
+
+                if ( defaultPanel ) {
+                    defaultPanel.hidden = true;
                 }
 
                 searchDebounce = window.setTimeout( function () {
@@ -460,6 +496,11 @@ function headies_drop_add_fields() {
         <p>Hero photo shown at the top of this drop's own page.</p>
     </div>
     <div class="form-field">
+        <label for="drop_video_id">Showcase Video (Attachment ID)</label>
+        <input type="number" name="drop_video_id" id="drop_video_id">
+        <p>Optional. Upload to Media Library first, then paste its Attachment ID here. Plays on this drop's own page (below the write-up) and, if this is the featured Upcoming Drop, as the background on the /drops page.</p>
+    </div>
+    <div class="form-field">
         <label for="drop_tagline">Tagline</label>
         <input type="text" name="drop_tagline" id="drop_tagline">
         <p>Short line shown under the drop name on its own page (the taxonomy Description field above is the short blurb used on the homepage carousel).</p>
@@ -480,6 +521,7 @@ function headies_drop_edit_fields( $term ) {
     $drop_image_id     = get_term_meta( $term->term_id, 'drop_image_id', true );
     $drop_main_image_id = get_term_meta( $term->term_id, 'drop_main_image_id', true );
     $drop_hero_image_id = get_term_meta( $term->term_id, 'drop_hero_image_id', true );
+    $drop_video_id      = get_term_meta( $term->term_id, 'drop_video_id', true );
     $drop_tagline       = get_term_meta( $term->term_id, 'drop_tagline', true );
     $drop_full_description = get_term_meta( $term->term_id, 'drop_full_description', true );
     ?>
@@ -505,6 +547,11 @@ function headies_drop_edit_fields( $term ) {
         <th><label for="drop_hero_image_id">Detail Page Hero (Attachment ID)</label></th>
         <td><input type="number" name="drop_hero_image_id" id="drop_hero_image_id" value="<?php echo esc_attr( $drop_hero_image_id ); ?>">
         <p>Hero photo on this drop's own page.</p></td>
+    </tr>
+    <tr class="form-field">
+        <th><label for="drop_video_id">Showcase Video (Attachment ID)</label></th>
+        <td><input type="number" name="drop_video_id" id="drop_video_id" value="<?php echo esc_attr( $drop_video_id ); ?>">
+        <p>Optional. Plays on this drop's own page (below the write-up) and, if this is the featured Upcoming Drop, as the background on the /drops page.</p></td>
     </tr>
     <tr class="form-field">
         <th><label for="drop_tagline">Tagline</label></th>
@@ -536,6 +583,9 @@ function headies_save_drop_fields( $term_id ) {
     }
     if ( isset( $_POST['drop_hero_image_id'] ) ) {
         update_term_meta( $term_id, 'drop_hero_image_id', absint( $_POST['drop_hero_image_id'] ) );
+    }
+    if ( isset( $_POST['drop_video_id'] ) ) {
+        update_term_meta( $term_id, 'drop_video_id', absint( $_POST['drop_video_id'] ) );
     }
     if ( isset( $_POST['drop_tagline'] ) ) {
         update_term_meta( $term_id, 'drop_tagline', sanitize_text_field( $_POST['drop_tagline'] ) );
@@ -685,6 +735,7 @@ function headies_render_hats_card( $product_id, $args = array() ) {
     $back_image  = ! empty( $gallery_ids ) ? wp_get_attachment_image_url( $gallery_ids[0], 'woocommerce_single' ) : '';
     $front_image = get_the_post_thumbnail_url( $product_id, 'woocommerce_single' );
 
+    $is_sold_out  = ! $product->is_in_stock();
     $drop         = headies_get_product_drop( $product_id );
     $badge_label  = 'New';
     $badge_class  = 'hats-badge';
@@ -697,8 +748,12 @@ function headies_render_hats_card( $product_id, $args = array() ) {
             $badge_class = 'hats-badge hats-badge--exclusive';
         }
     }
+    if ( $is_sold_out ) {
+        $badge_label = 'Sold Out';
+        $badge_class = 'hats-badge hats-badge--soldout';
+    }
     ?>
-    <div class="hats-card">
+    <div class="hats-card<?php echo $is_sold_out ? ' hats-card--soldout' : ''; ?>">
       <a href="<?php echo esc_url( get_permalink( $product_id ) ); ?>" class="hats-card-image">
         <span class="<?php echo esc_attr( $badge_class ); ?>"><?php echo esc_html( $badge_label ); ?></span>
         <img class="hats-img-front" src="<?php echo esc_url( $front_image ); ?>" alt="<?php echo esc_attr( $product->get_name() ); ?>">
@@ -872,6 +927,64 @@ function headies_highlight_match( $text, $term ) {
     return preg_replace( $pattern, '<mark>$0</mark>', $safe_text );
 }
 
+/**
+ * Curated shortcuts shown in the search overlay before anyone types —
+ * there's no team taxonomy in the catalog to pull this from automatically,
+ * so it's a short editable list. Update as the catalog's team mix changes.
+ */
+function headies_get_popular_searches() {
+    return apply_filters( 'headies_popular_searches', array( 'Yankees', 'Dodgers', 'White Sox', 'Braves' ) );
+}
+
+// Shared by live search results and the "Trending Now" default panel below,
+// so both render the identical card markup/styling.
+function headies_search_result_card( $product_id, $term = '' ) {
+    $product = wc_get_product( $product_id );
+    if ( ! $product ) {
+        return;
+    }
+    ?>
+    <a href="<?php echo esc_url( get_permalink( $product_id ) ); ?>" class="nav-search-result">
+        <div class="nav-search-result-image"><?php echo get_the_post_thumbnail( $product_id, 'thumbnail' ); ?></div>
+        <span class="nav-search-result-name"><?php echo wp_kses_post( headies_highlight_match( $product->get_name(), $term ) ); ?></span>
+        <span class="nav-search-result-price"><?php echo wp_kses_post( wc_price( $product->get_price() ) ); ?></span>
+    </a>
+    <?php
+}
+
+/**
+ * The 4 best-selling published products, for the search overlay's "Trending
+ * Now" panel — falls back to the most recent products for a fresh catalog
+ * with no sales yet.
+ */
+function headies_get_trending_products( $limit = 4 ) {
+    $query = new WP_Query( array(
+        'post_type'      => 'product',
+        'post_status'    => 'publish',
+        'posts_per_page' => $limit,
+        'meta_key'       => 'total_sales',
+        'orderby'        => 'meta_value_num',
+        'order'          => 'DESC',
+    ) );
+    $ids = wp_list_pluck( $query->posts, 'ID' );
+    wp_reset_postdata();
+
+    if ( count( $ids ) < $limit ) {
+        $fallback = new WP_Query( array(
+            'post_type'      => 'product',
+            'post_status'    => 'publish',
+            'posts_per_page' => $limit,
+            'orderby'        => 'date',
+            'order'          => 'DESC',
+            'post__not_in'   => $ids,
+        ) );
+        $ids = array_merge( $ids, wp_list_pluck( $fallback->posts, 'ID' ) );
+        wp_reset_postdata();
+    }
+
+    return array_slice( $ids, 0, $limit );
+}
+
 function headies_ajax_live_search() {
     check_ajax_referer( 'headies_live_search', 'nonce' );
 
@@ -891,14 +1004,7 @@ function headies_ajax_live_search() {
     if ( $query->have_posts() ) {
         while ( $query->have_posts() ) {
             $query->the_post();
-            global $product;
-            ?>
-            <a href="<?php the_permalink(); ?>" class="nav-search-result">
-                <div class="nav-search-result-image"><?php echo get_the_post_thumbnail( get_the_ID(), 'thumbnail' ); ?></div>
-                <span class="nav-search-result-name"><?php echo wp_kses_post( headies_highlight_match( get_the_title(), $term ) ); ?></span>
-                <span class="nav-search-result-price"><?php echo wp_kses_post( wc_price( $product->get_price() ) ); ?></span>
-            </a>
-            <?php
+            headies_search_result_card( get_the_ID(), $term );
         }
     }
     wp_reset_postdata();
@@ -961,6 +1067,44 @@ function headies_ajax_add_all_wishlist_to_cart() {
 add_action( 'wp_ajax_headies_add_all_wishlist_to_cart', 'headies_ajax_add_all_wishlist_to_cart' );
 add_action( 'wp_ajax_nopriv_headies_add_all_wishlist_to_cart', 'headies_ajax_add_all_wishlist_to_cart' );
 
+/**
+ * Snapshot the caller's current wishlist under a random token so it can be
+ * viewed by anyone with the link — logged-in wishlists live in user meta and
+ * guest ones in a cookie, neither of which is reachable by a third party, so
+ * "Share List" needs its own public-readable copy. Re-shares the same token
+ * (refreshing its expiry) while it's still valid, so repeat clicks don't
+ * spawn a new link every time.
+ */
+function headies_ajax_get_wishlist_share_link() {
+    check_ajax_referer( 'headies_wishlist', 'nonce' );
+
+    $product_ids = array_map( 'absint', array_keys( headies_get_wishlist() ) );
+    if ( empty( $product_ids ) ) {
+        wp_send_json_error();
+    }
+
+    $token = '';
+    if ( is_user_logged_in() ) {
+        $existing = get_user_meta( get_current_user_id(), '_headies_wishlist_share_token', true );
+        if ( $existing && get_transient( 'headies_wl_share_' . $existing ) ) {
+            $token = $existing;
+        }
+    }
+    if ( ! $token ) {
+        $token = wp_generate_password( 20, false );
+        if ( is_user_logged_in() ) {
+            update_user_meta( get_current_user_id(), '_headies_wishlist_share_token', $token );
+        }
+    }
+    set_transient( 'headies_wl_share_' . $token, $product_ids, 90 * DAY_IN_SECONDS );
+
+    wp_send_json_success( array(
+        'url' => add_query_arg( 'share', $token, home_url( '/wishlist/' ) ),
+    ) );
+}
+add_action( 'wp_ajax_headies_get_wishlist_share_link', 'headies_ajax_get_wishlist_share_link' );
+add_action( 'wp_ajax_nopriv_headies_get_wishlist_share_link', 'headies_ajax_get_wishlist_share_link' );
+
 function headies_add_to_bag_text() {
     return __( 'Add to Bag', 'headies' );
 }
@@ -987,7 +1131,7 @@ function headies_cart_drawer_state() {
     if ( $is_empty ) {
         $items_html = sprintf(
             '<div class="headies-drawer-empty"><p>Your bag is empty.</p><a href="%s" class="headies-pill-btn headies-pill-btn--dark">Continue Shopping</a></div>',
-            esc_url( wc_get_page_permalink( 'shop' ) ? wc_get_page_permalink( 'shop' ) : home_url( '/hats' ) )
+            esc_url( home_url( '/hats' ) )
         );
     } else {
         ob_start();
@@ -1517,4 +1661,19 @@ function headies_enqueue_cart_checkout_scripts() {
     }
 }
 add_action( 'wp_enqueue_scripts', 'headies_enqueue_cart_checkout_scripts' );
+
+// ===== MY ACCOUNT / LOGIN =====
+
+/**
+ * WooCommerce's login handler runs the WP_Error message from wp_signon()
+ * through this exact filter before turning it into a notice (see
+ * WC_Form_Handler::process_login()) — so it's the one place that catches
+ * every wrong-credential case ("invalid username", "unknown email",
+ * "incorrect password"...) and lets us show one plain, simple message
+ * instead of WordPress's verbose, username-revealing defaults.
+ */
+function headies_simplify_login_error() {
+    return __( 'Incorrect email or password.', 'headies' );
+}
+add_filter( 'login_errors', 'headies_simplify_login_error' );
 

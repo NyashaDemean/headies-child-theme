@@ -20,6 +20,17 @@ $show_reg_password   = 'no' === get_option( 'woocommerce_registration_generate_p
 
 	<div class="headies-login-form-panel">
 
+		<?php
+		/**
+		 * WooCommerce hooks its "Error: incorrect password" / "Your password
+		 * has been reset" etc. notices onto this action (see
+		 * woocommerce_output_all_notices in wc-template-hooks.php) — the
+		 * default template fires it, but this custom one never did, so login
+		 * errors were being queued and then silently dropped.
+		 */
+		do_action( 'woocommerce_before_customer_login_form' );
+		?>
+
 		<div class="headies-login-view" id="login">
 
 			<h1 class="headies-login-heading"><?php esc_html_e( 'Welcome Back', 'headies-child' ); ?></h1>

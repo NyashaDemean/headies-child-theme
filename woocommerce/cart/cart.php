@@ -152,7 +152,7 @@ do_action( 'woocommerce_before_cart' );
 						</div>
 					<?php endif; ?>
 
-					<a href="<?php echo esc_url( wc_get_page_permalink( 'shop' ) ? wc_get_page_permalink( 'shop' ) : home_url( '/hats' ) ); ?>" class="headies-link-action headies-continue-shopping"><?php esc_html_e( 'Continue Shopping', 'woocommerce' ); ?></a>
+					<a href="<?php echo esc_url( home_url( '/hats' ) ); ?>" class="headies-link-action headies-continue-shopping"><?php esc_html_e( 'Continue Shopping', 'woocommerce' ); ?></a>
 
 					<button type="submit" class="headies-cart-update-btn" name="update_cart" value="<?php esc_attr_e( 'Update cart', 'woocommerce' ); ?>"><?php esc_html_e( 'Update cart', 'woocommerce' ); ?></button>
 

@@ -57,7 +57,7 @@ foreach ( $headies_drops_bar as $d ) {
         <a href="<?php echo esc_url( home_url( '/' ) ); ?>">
           <span class="nav-logo-wordmark">
             <img class="logo-default" src="<?php echo esc_url( get_stylesheet_directory_uri() . '/images/logos/logo-solid-white.png' ); ?>" alt="Headies">
-            <img class="logo-hover" src="<?php echo esc_url( get_stylesheet_directory_uri() . '/images/logos/logo-solid-blue.png' ); ?>" alt="Headies">
+            <img class="logo-hover" src="<?php echo esc_url( get_stylesheet_directory_uri() . '/images/logos/headies-logo-black.png' ); ?>" alt="Headies">
           </span>
           <span class="nav-logo-icon">
             <img class="logo-default" src="<?php echo esc_url( get_stylesheet_directory_uri() . '/images/logos/icon-cap-white.png' ); ?>" alt="Headies">
@@ -85,6 +85,42 @@ foreach ( $headies_drops_bar as $d ) {
 
       <div class="nav-search-bar">
         <?php echo get_search_form(); ?>
+
+        <?php
+        $headies_popular_searches  = headies_get_popular_searches();
+        $headies_trending_ids      = headies_get_trending_products( 4 );
+        ?>
+        <?php if ( $headies_popular_searches || $headies_trending_ids ) : ?>
+          <div class="nav-search-default">
+            <?php if ( $headies_popular_searches ) : ?>
+              <div class="nav-search-popular">
+                <h3 class="nav-search-panel-heading">Popular Searches</h3>
+                <ul class="nav-search-popular-list">
+                  <?php foreach ( $headies_popular_searches as $headies_term ) : ?>
+                    <li>
+                      <a href="<?php echo esc_url( add_query_arg( 's', $headies_term, home_url( '/' ) ) ); ?>">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                        <?php echo esc_html( $headies_term ); ?>
+                      </a>
+                    </li>
+                  <?php endforeach; ?>
+                </ul>
+              </div>
+            <?php endif; ?>
+
+            <?php if ( $headies_trending_ids ) : ?>
+              <div class="nav-search-trending">
+                <h3 class="nav-search-panel-heading">Trending Now</h3>
+                <div class="nav-search-results-grid">
+                  <?php foreach ( $headies_trending_ids as $headies_trending_id ) : ?>
+                    <?php headies_search_result_card( $headies_trending_id ); ?>
+                  <?php endforeach; ?>
+                </div>
+              </div>
+            <?php endif; ?>
+          </div>
+        <?php endif; ?>
+
         <div class="nav-search-results" hidden>
           <div class="nav-search-results-grid"></div>
           <a href="#" class="nav-search-view-all">View all results</a>

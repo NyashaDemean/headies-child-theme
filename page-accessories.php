@@ -4,7 +4,7 @@
  */
 get_header(); ?>
 
-<section class="hats-hero" style="background-image: url('<?php echo esc_url( get_stylesheet_directory_uri() . '/images/accessories-hero.jpg' ); ?>');"></section>
+<section class="hats-hero" style="background-image: url('<?php echo esc_url( get_stylesheet_directory_uri() . '/images/' . rawurlencode( 'website images' ) . '/accessories-hero.jpg' ); ?>');"></section>
 
 
 <div class="hats-page">

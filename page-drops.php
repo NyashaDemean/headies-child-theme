@@ -11,7 +11,15 @@ foreach ( $drops as $drop ) {
     }
 }
 
-$hero_drop = ! empty( $groups['upcoming'] ) ? $groups['upcoming'][0] : ( ! empty( $groups['past'] ) ? $groups['past'][0] : null );
+$hero_drop = null;
+foreach ( $groups['upcoming'] as $drop_row ) {
+    if ( 'petals-pennants' === $drop_row['slug'] ) {
+        $hero_drop = $drop_row;
+    }
+}
+if ( ! $hero_drop ) {
+    $hero_drop = ! empty( $groups['upcoming'] ) ? $groups['upcoming'][0] : ( ! empty( $groups['past'] ) ? $groups['past'][0] : null );
+}
 if ( $hero_drop ) {
     $hero_image = $hero_drop['hero_image'] ? $hero_drop['hero_image'] : ( $hero_drop['main_image'] ? $hero_drop['main_image'] : $hero_drop['image'] );
     $hero_link  = get_term_link( (int) $hero_drop['id'], 'product_drop' );
@@ -21,6 +29,11 @@ if ( $hero_drop ) {
 
 <?php if ( $hero_drop ) : ?>
   <section class="drops-hero" style="background-image: url('<?php echo esc_url( $hero_image ); ?>');">
+    <?php if ( $hero_drop['video'] ) : ?>
+      <video class="drops-hero-video" autoplay muted loop playsinline preload="auto" poster="<?php echo esc_url( $hero_image ); ?>">
+        <source src="<?php echo esc_url( $hero_drop['video'] ); ?>" type="video/mp4">
+      </video>
+    <?php endif; ?>
     <div class="drops-hero-content">
       <h1 class="drops-hero-name"><?php echo esc_html( $hero_drop['name'] ); ?></h1>
       <a href="<?php echo esc_url( $hero_link ); ?>" class="headies-shop-cta">See Details</a>
@@ -65,8 +78,12 @@ body .headies-nav:not(.nav-scrolled):not(:hover) .nav-logo .logo-hover{
   display: flex; align-items: flex-end; justify-content: flex-end;
 }
 .drops-hero::before{
-  content: ""; position: absolute; inset: 0;
+  content: ""; position: absolute; inset: 0; z-index: 1;
   background: linear-gradient(0deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0) 45%);
+}
+.drops-hero-video{
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover;
 }
 .drops-hero-content{
   position: relative; z-index: 1;

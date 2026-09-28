@@ -55,6 +55,14 @@ $headies_drop_products = new WP_Query( array(
 	</div>
 </div>
 
+<?php if ( $headies_drop['video'] ) : ?>
+	<section class="drop-video-section">
+		<video class="drop-video" autoplay muted loop playsinline preload="auto" poster="<?php echo esc_url( $headies_hero_image ); ?>">
+			<source src="<?php echo esc_url( $headies_drop['video'] ); ?>" type="video/mp4">
+		</video>
+	</section>
+<?php endif; ?>
+
 <div class="drop-page">
 
 	<?php if ( $headies_is_upcoming ) : ?>
@@ -97,11 +105,13 @@ body .headies-nav:not(.nav-scrolled):not(:hover) .nav-logo .logo-hover{
   position: relative;
   width: 100%; min-height: 460px;
   background-size: cover; background-position: center;
-  display: flex; align-items: flex-start;
+  display: flex; align-items: flex-end;
 }
 .drop-hero::before{
   content: ""; position: absolute; inset: 0;
-  background: linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.05) 30%, rgba(0,0,0,0) 60%);
+  /* Scrim now anchors to the bottom, where the back link/status badge sit,
+     so they read clearly instead of fighting the fixed top nav for space. */
+  background: linear-gradient(0deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.15) 40%, rgba(0,0,0,0) 70%);
 }
 .drop-hero-overlay{ position: relative; z-index: 1; padding: 40px 48px; }
 .drop-hero-back{
@@ -116,7 +126,7 @@ body .headies-nav:not(.nav-scrolled):not(:hover) .nav-logo .logo-hover{
 }
 .drop-hero-status{
   display: inline-block; font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 800;
-  letter-spacing: 0.12em; text-transform: uppercase; color: #0b2a4a; background: var(--headies-accent);
+  letter-spacing: 0.12em; text-transform: uppercase; color: #fff; background: var(--headies-primary);
   padding: 6px 14px; border-radius: 999px;
 }
 
@@ -131,6 +141,9 @@ body .headies-nav:not(.nav-scrolled):not(:hover) .nav-logo .logo-hover{
 .drop-hero-tagline{
   font-family: 'Inter', sans-serif; font-size: 16px; color: #ccc; margin: 0 0 20px;
 }
+
+.drop-video-section{ width: 100%; line-height: 0; background: #000; }
+.drop-video{ width: 100%; max-height: 640px; object-fit: cover; display: block; }
 
 .drop-page{ background: #fff; padding: 40px 40px 20px; max-width: 1400px; margin: 0 auto; }
 .drop-description{

@@ -187,14 +187,21 @@ button, .button {
 
 .nav-hamburger {
   display: none;
+  -webkit-appearance: none;
+  appearance: none;
   background: none;
+  background-color: transparent;
   border: none;
   padding: 0;
   cursor: pointer;
   color: #fff;
   flex: 1;
   transition: color 0.3s ease;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
 }
+.nav-hamburger:focus { outline: none; background-color: transparent; }
+.nav-hamburger:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
 .nav-hamburger svg { width: 24px; height: 24px; }
 .headies-nav.nav-scrolled .nav-hamburger,
 .headies-nav:hover .nav-hamburger { color: #000; }
@@ -231,7 +238,7 @@ button, .button {
 }
 
 .nav-logo .logo-default { display: block; }
-.nav-logo .logo-hover { display: none; filter: brightness(0); }
+.nav-logo .logo-hover { display: none; }
 
 .headies-nav.nav-scrolled .nav-logo .logo-default,
 .headies-nav:hover .nav-logo .logo-default { display: none; }
@@ -247,7 +254,7 @@ button, .button {
 @media (max-width: 700px) {
   .nav-logo-wordmark { display: none; }
   .nav-logo-icon { display: block; }
-  .nav-logo-icon img { height: 30px; }
+  .nav-logo-icon img { height: 60px; }
 }
 
 .nav-icons {
@@ -281,8 +288,8 @@ button, .button {
   position: absolute;
   top: -6px;
   right: -8px;
-  background: var(--headies-accent);
-  color: #0b2a4a;
+  background: var(--headies-primary);
+  color: #fff;
   font-size: 10px;
   font-weight: 700;
   width: 16px;
@@ -325,8 +332,20 @@ button, .button {
   flex: 1; border: none; outline: none;
   background: transparent; padding: 12px 4px;
   font-family: 'Inter', sans-serif; font-size: 15px; color: #111;
+  -webkit-appearance: none;
+  appearance: none;
+  border-radius: 0;
 }
 .nav-search-form .search-field::placeholder { color: #888; }
+/* type="search" ships its own native rounded-rect chrome in WebKit browsers
+   that peeks out from behind the pill above unless explicitly removed. */
+.nav-search-form .search-field::-webkit-search-decoration,
+.nav-search-form .search-field::-webkit-search-cancel-button,
+.nav-search-form .search-field::-webkit-search-results-button,
+.nav-search-form .search-field::-webkit-search-results-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+}
 
 .nav-search-results {
   max-width: 900px; margin: 22px auto 26px; padding: 0 64px;
@@ -355,6 +374,32 @@ button, .button {
   font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 800;
   letter-spacing: 0.08em; text-transform: uppercase;
   color: var(--headies-primary); text-decoration: none;
+}
+
+/* --- Search overlay default state (Popular Searches + Trending Now),
+   shown before anyone types and swapped out for live results after. --- */
+.nav-search-default {
+  max-width: 900px; margin: 22px auto 26px; padding: 0 64px;
+  display: grid; grid-template-columns: 200px 1fr; gap: 40px;
+}
+.nav-search-default[hidden] { display: none; }
+.nav-search-panel-heading {
+  font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 0.1em; color: #8a8a8a;
+  margin: 0 0 14px;
+}
+.nav-search-popular-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+.nav-search-popular-list a {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 8px; margin: 0 -8px; border-radius: 8px;
+  font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; color: #111;
+  text-decoration: none; transition: background .15s ease;
+}
+.nav-search-popular-list a:hover { background: #f5f5f5; }
+.nav-search-popular-list svg { width: 16px; height: 16px; flex: none; color: #999; }
+
+@media (max-width: 760px) {
+  .nav-search-default { grid-template-columns: 1fr; gap: 26px; padding: 0 24px; }
 }
 .nav-search-view-all:hover { text-decoration: underline; }
 
@@ -398,27 +443,35 @@ button, .button {
   margin-bottom: 32px;
 }
 
-/* Featured drop — split banner (light text panel + product photo) matching
-   the New Era "Just Caps" reference, right under the hero. */
+/* Featured drop — same technique as Trending Now below: the photo sits
+   directly on the section as a background-image (bigger min-height shows
+   more of it) with the copy overlaid on a scrim over its empty left side,
+   rather than a separate <img> boxed into a fixed-height crop. */
 .featured-drop {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  align-items: stretch;
+  position: relative;
+  display: flex;
+  align-items: center;
+  background-size: cover;
+  background-position: center;
+  min-height: 65vh;
   max-width: 1400px;
-  min-height: 460px;
   margin: 0 auto 50px;
   border-radius: 8px;
   overflow: hidden;
-  background: #f4f3f0;
+  padding: 48px;
+  background-color: #f4f3f0;
   text-decoration: none;
 }
+.featured-drop::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(244,243,240,0.94) 0%, rgba(244,243,240,0.6) 38%, rgba(244,243,240,0) 62%);
+}
 .featured-drop-info {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: flex-start;
-  text-align: left;
-  padding: 56px;
+  position: relative;
+  z-index: 1;
+  max-width: 480px;
 }
 .featured-drop-eyebrow {
   display: inline-block;
@@ -433,16 +486,6 @@ button, .button {
 .featured-drop-desc {
   font-family: 'Inter', sans-serif; font-size: 15px; color: #555;
   margin: 0 0 28px; max-width: 420px;
-}
-.featured-drop-image {
-  width: 100%; height: 100%; min-height: 320px;
-  background: #eae8e3;
-  overflow: hidden;
-}
-.featured-drop-image img {
-  width: 100%; height: 100%;
-  object-fit: cover;
-  display: block;
 }
 
 .collections-grid {
@@ -487,19 +530,47 @@ button, .button {
 }
 
 @media (max-width: 900px) {
+  /* Left-to-right swipeable row instead of a wrapping grid — a 2/3-up grid
+     was cropping cards against the viewport edge on narrow screens. */
   .collections-grid {
-    grid-template-columns: repeat(2, 1fr);
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    gap: 16px;
+    padding: 4px 4px 10px;
+    margin: 0 -4px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
   }
-  .featured-drop { grid-template-columns: 1fr; min-height: 0; }
-  .featured-drop-info { padding: 36px 28px; }
-  .featured-drop-image { min-height: 280px; }
-  .featured-drop-name { font-size: 30px; }
+  .collections-grid::-webkit-scrollbar { display: none; }
+  .collection-card {
+    flex: 0 0 72%;
+    scroll-snap-align: start;
+  }
+  /* Full photo, nothing cropped — title/description/button grouped together
+     over a bottom-up dark scrim, bottom-left, matching a simple full-bleed
+     collection-card layout instead of the desktop split-screen treatment. */
+  .featured-drop {
+    min-height: 55vh;
+    padding: 28px 24px;
+    align-items: flex-end;
+    background-size: cover;
+    background-position: center;
+  }
+  .featured-drop::before {
+    background: linear-gradient(0deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.25) 45%, rgba(0,0,0,0) 75%);
+  }
+  .featured-drop-info { max-width: 100%; }
+  .featured-drop-eyebrow,
+  .featured-drop-name,
+  .featured-drop-desc { text-align: left; }
+  .featured-drop-eyebrow { color: #fff; }
+  .featured-drop-name { font-size: 30px; color: #fff; }
+  .featured-drop-desc { color: rgba(255,255,255,0.85); }
 }
 
 @media (max-width: 500px) {
-  .collections-grid {
-    grid-template-columns: 1fr;
-  }
+  .collection-card { flex-basis: 80%; }
 }
 /* ===== TRENDING NOW ===== */
 .trending-now {
@@ -668,8 +739,13 @@ button, .button {
   font-size: 10.5px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;
   padding: 6px 12px; border-radius: 999px;
 }
-.hats-badge--soon { background: var(--headies-accent); color: #0b2a4a; }
+.hats-badge--soon { background: var(--headies-primary); color: #fff; }
 .hats-badge--exclusive { background: var(--headies-primary); color: #fff; }
+.hats-badge--soldout { background: #fdecec; color: #c0392b; }
+
+.hats-card--soldout .hats-img-front { opacity: 0.45; }
+.hats-card--soldout:hover .hats-img-front { opacity: 0.45; }
+.hats-card--soldout:hover .hats-img-back { opacity: 0; }
 
 .hats-card-info {
   display: flex; justify-content: space-between; align-items: center;
@@ -764,7 +840,7 @@ body.single-product .headies-nav:not(.nav-scrolled):not(:hover) .nav-logo .logo-
 }
 .headies-gallery-badge--soon {
   top: 44px;
-  background: var(--headies-accent); color: #0b2a4a;
+  background: var(--headies-primary); color: #fff;
 }
 .headies-gallery-main .headies-wishlist-toggle {
   position: absolute; top: 14px; right: 14px; z-index: 3;
@@ -790,6 +866,23 @@ body.single-product .headies-nav:not(.nav-scrolled):not(:hover) .nav-logo .logo-
   margin: 0 0 6px; display: block;
 }
 .headies-product-payline { margin: 0 0 24px; font-size: 13px; color: #8a8a8a; }
+
+/* --- Stock availability — WooCommerce's own .stock text, from wc_get_stock_html()
+   for both simple products and (via .woocommerce-variation-availability) variations --- */
+.headies-product-layout .summary .stock {
+  display: inline-block;
+  margin: 10px 0 4px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.headies-product-layout .summary .stock.out-of-stock { background: #fdecec; color: #c0392b; }
+.headies-product-layout .summary .stock.in-stock { background: #eafaf0; color: #1e8449; }
+.headies-product-layout .summary .stock.available-on-backorder { background: #fff4e0; color: #ab7a0a; }
 
 /* --- Size selector — defaults to a single "One Size" chip for the
    (currently all) one-size caps; renders a real multi-size row the moment
@@ -904,12 +997,12 @@ body.single-product .headies-nav:not(.nav-scrolled):not(:hover) .nav-logo .logo-
   border-right: 1px solid #e7e7e7; border-bottom: 1px solid #e7e7e7;
   display: block; color: #111; text-decoration: none;
 }
-.headies-related-image { background: #f4f4f4; aspect-ratio: 4 / 3; overflow: hidden; }
+.headies-related-image { background: #f4f4f4; aspect-ratio: 3 / 4; overflow: hidden; }
 .headies-related-image img {
   width: 100%; height: 100%; object-fit: contain; display: block;
   transition: transform .3s ease;
 }
-.headies-related-card:hover .headies-related-image img { transform: scale(1.05); }
+.headies-related-card:hover .headies-related-image img { transform: scale(1.06); }
 .headies-related-info {
   display: flex; justify-content: space-between; align-items: center;
   padding: 12px 14px; border-top: 1px solid #e7e7e7; font-size: 13.5px;
@@ -924,6 +1017,12 @@ body.single-product .headies-nav:not(.nav-scrolled):not(:hover) .nav-logo .logo-
   .headies-gallery-thumbs { grid-auto-flow: column; grid-auto-columns: 72px; overflow-x: auto; order: 2; }
   .headies-product-layout .summary .product_title { font-size: 32px; }
   .headies-related-grid { grid-template-columns: repeat(2, 1fr); }
+  .headies-related-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  .headies-related-name { max-width: 100%; }
 }
 
 /* ===== MY ACCOUNT =====
@@ -1078,7 +1177,7 @@ body.storefront-full-width-content .entry-header { display: none; }
 .headies-account-side .woocommerce-MyAccount-navigation-link--customer-logout a:hover { color: #b52d2d; }
 
 /* --- Shared card + button vocabulary (matches the Hats page) --- */
-.headies-card { border: 1px solid #e7e7e7; background: #fff; }
+.headies-card { border: 1px solid #e7e7e7; background: #fff; border-radius: 8px; }
 
 .headies-btn-outline {
   border: 1px solid #111;
@@ -1092,6 +1191,7 @@ body.storefront-full-width-content .entry-header { display: none; }
   color: #111;
   display: inline-block;
   white-space: nowrap;
+  border-radius: 999px;
   transition: background .15s ease, color .15s ease, border-color .15s ease;
 }
 .headies-btn-outline:hover { background: var(--headies-primary); color: #fff; border-color: var(--headies-primary); }
@@ -1189,9 +1289,10 @@ button.headies-btn-primary {
   padding: 5px 10px;
   background: #eef3fa;
   color: var(--headies-primary);
+  border-radius: 999px;
 }
 .headies-status--processing,
-.headies-status--on-hold { background: var(--headies-accent); color: #0b2a4a; }
+.headies-status--on-hold { background: var(--headies-primary); color: #fff; }
 .headies-status--cancelled,
 .headies-status--failed,
 .headies-status--refunded { background: #f2f2f2; color: #8a8a8a; }
@@ -1199,9 +1300,11 @@ button.headies-btn-primary {
 /* --- Tables --- */
 .headies-account .headies-table {
   width: 100%;
-  border-collapse: collapse;
-  border-top: 1px solid #e7e7e7;
-  border-left: 1px solid #e7e7e7;
+  border-collapse: separate;
+  border-spacing: 0;
+  border: 1px solid #e7e7e7;
+  border-radius: 8px;
+  overflow: hidden;
   font-size: 13.5px;
 }
 .headies-account .headies-table th {
@@ -1222,6 +1325,9 @@ button.headies-btn-primary {
   border-bottom: 1px solid #e7e7e7;
   vertical-align: middle;
 }
+.headies-account .headies-table th:last-child,
+.headies-account .headies-table td:last-child { border-right: none; }
+.headies-account .headies-table tr:last-child td { border-bottom: none; }
 .headies-account .headies-table td a { color: var(--headies-primary); font-weight: 700; text-decoration: none; }
 .headies-account .headies-table td a:hover { color: var(--headies-accent); }
 
@@ -1273,7 +1379,7 @@ button.headies-btn-primary {
   width: 100%;
   box-sizing: border-box;
   border: 1px solid #e7e7e7;
-  border-radius: 0;
+  border-radius: 8px;
   box-shadow: none;
   padding: 12px 14px;
   font-family: 'Inter', sans-serif;
@@ -1350,13 +1456,52 @@ button.headies-btn-primary {
 .headies-modal-panel .headies-btn-primary { margin-top: 22px; width: 100%; }
 
 /* --- Notices --- */
+/* Storefront's own WooCommerce CSS styles these as solid colour banners
+   (e.g. green/blue backgrounds) with white text baked in — readable there,
+   but switching the background to a light neutral grey below without also
+   overriding the text left it white-on-near-white and unreadable. */
 .headies-account .woocommerce-message,
 .headies-account .woocommerce-info,
-.headies-account .woocommerce-error {
+.headies-account .woocommerce-error,
+.headies-login-form-panel .woocommerce-message,
+.headies-login-form-panel .woocommerce-info,
+.headies-login-form-panel .woocommerce-error {
   border-top-color: var(--headies-primary);
   background: #fafafa;
+  color: #333;
   font-size: 14px;
 }
+.headies-account .woocommerce-message a,
+.headies-account .woocommerce-info a,
+.headies-account .woocommerce-error a,
+.headies-login-form-panel .woocommerce-message a,
+.headies-login-form-panel .woocommerce-info a,
+.headies-login-form-panel .woocommerce-error a {
+  color: var(--headies-primary);
+}
+/* Plain red bullet text on the login screen instead of the boxed-notice
+   treatment above — simpler, closer to a native inline validation message. */
+.headies-login-form-panel .woocommerce-error {
+  width: 100%;
+  max-width: 420px;
+  margin: 0 0 22px;
+  padding: 0 0 0 18px;
+  border: none;
+  background: none;
+  list-style: disc;
+  color: #e2231a;
+  font-size: 14px;
+}
+.headies-login-form-panel .woocommerce-error::before,
+.headies-login-form-panel .woocommerce-error::after {
+  content: none;
+  display: none;
+}
+.headies-login-form-panel .woocommerce-error li {
+  margin: 0;
+  padding: 0;
+}
+.headies-login-form-panel .woocommerce-error a { color: #e2231a; text-decoration: underline; }
 
 @media (max-width: 900px) {
   .headies-account { padding: 0 20px 60px; }
@@ -1380,10 +1525,15 @@ button.headies-btn-primary {
 body.woocommerce-account-login .type-page,
 body.woocommerce-account-login .site-main { padding-top: 0; padding-bottom: 0; margin-bottom: 0; }
 
+/* The nav is position:fixed at 88px tall and this wrapper starts at the very
+   top of the page, so without this offset the nav sits on top of (crops)
+   the photo's top edge instead of the split-screen starting below it. */
 .headies-login-wrapper {
   display: grid;
   grid-template-columns: 1fr 1fr;
   min-height: 100vh;
+  padding-top: 88px;
+  box-sizing: border-box;
 }
 
 .headies-login-image {
@@ -1396,7 +1546,7 @@ body.woocommerce-account-login .site-main { padding-top: 0; padding-bottom: 0; m
   display: block;
   width: 100%;
   height: 100%;
-  min-height: 100vh;
+  min-height: calc(100vh - 88px);
   object-fit: cover;
 }
 
@@ -1447,7 +1597,7 @@ body.woocommerce-account-login .site-main { padding-top: 0; padding-bottom: 0; m
   width: 100%;
   box-sizing: border-box;
   border: 1px solid #e0e0e0;
-  border-radius: 0;
+  border-radius: 8px;
   box-shadow: none;
   padding: 15px 16px;
   font-family: 'Inter', sans-serif;
@@ -1587,7 +1737,7 @@ body.page-wishlist .headies-nav:not(.nav-scrolled):not(:hover) .nav-logo .logo-h
 .headies-product-wishlist .headies-wishlist-toggle {
   width: auto;
   height: auto;
-  border-radius: 0;
+  border-radius: 999px;
   border: 1px solid #111;
   background: #fff;
   padding: 12px 20px;
@@ -1624,6 +1774,46 @@ body.page-wishlist .headies-nav:not(.nav-scrolled):not(:hover) .nav-logo .logo-h
 }
 .headies-wishlist-count { color: #8a8a8a; font-weight: 700; }
 .headies-wishlist-actions { display: flex; gap: 14px; flex-wrap: wrap; }
+
+.headies-wishlist-share-wrap { position: relative; display: inline-block; }
+.headies-share-popover {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 20;
+  min-width: 210px;
+  background: #fff;
+  border: 1px solid #e7e7e7;
+  border-radius: 12px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.14);
+  padding: 8px;
+  flex-direction: column;
+  gap: 2px;
+}
+/* [hidden] is otherwise beaten by the flex display below — author styles
+   always win over the browser's built-in "[hidden]{display:none}" rule. */
+.headies-share-popover[hidden] { display: none; }
+.headies-share-popover:not([hidden]) { display: flex; }
+.headies-share-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 12px;
+  border: none;
+  border-radius: 8px;
+  background: none;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #111;
+  text-decoration: none;
+  text-align: left;
+  cursor: pointer;
+  transition: background .15s ease;
+}
+.headies-share-option:hover { background: #f5f5f5; }
+.headies-share-option svg { width: 18px; height: 18px; flex: none; }
 
 /* Matches .hats-grid — same columns/gap, no table borders. */
 .headies-wishlist-grid {
@@ -1675,8 +1865,8 @@ body.page-wishlist .headies-nav:not(.nav-scrolled):not(:hover) .nav-logo .logo-h
   position: absolute;
   top: 10px;
   left: 10px;
-  background: var(--headies-accent);
-  color: #0b2a4a;
+  background: var(--headies-primary);
+  color: #fff;
   font-size: 10px;
   font-weight: 800;
   letter-spacing: 0.1em;
@@ -1841,7 +2031,7 @@ body.woocommerce-cart .headies-nav:not(.nav-scrolled):not(:hover) .nav-logo .log
 .headies-checkout-coupon .checkout_coupon .form-row-last { flex: none; }
 .headies-checkout-coupon .checkout_coupon input#coupon_code {
   width: 100%; box-sizing: border-box;
-  border: 1px solid #e7e7e7; border-radius: 0;
+  border: 1px solid #e7e7e7; border-radius: 8px;
   padding: 12px 14px; font-family: 'Inter', sans-serif; font-size: 13px;
 }
 .headies-checkout-coupon .checkout_coupon input#coupon_code:focus { outline: none; border-color: var(--headies-primary); }
@@ -2017,7 +2207,7 @@ body.woocommerce-cart .headies-nav:not(.nav-scrolled):not(:hover) .nav-logo .log
   width: 100%;
   box-sizing: border-box;
   border: 1px solid #e7e7e7;
-  border-radius: 0;
+  border-radius: 8px;
   box-shadow: none;
   padding: 13px 14px;
   font-family: 'Inter', sans-serif;
