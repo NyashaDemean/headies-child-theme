@@ -277,6 +277,22 @@ function headies_get_product_drop( $product_id ) {
     return $term;
 }
 
+/**
+ * Term IDs of drops that haven't gone live yet. Used to keep their products
+ * out of the main shop grid and search until their release date — the
+ * drop's own page (taxonomy-product_drop.php) still reveals them "mystery
+ * style" ahead of time.
+ */
+function headies_get_upcoming_drop_term_ids() {
+    $upcoming_ids = array();
+    foreach ( headies_get_drops() as $drop ) {
+        if ( 'upcoming' === $drop['status'] ) {
+            $upcoming_ids[] = $drop['id'];
+        }
+    }
+    return $upcoming_ids;
+}
+
 
 function headies_nav_scroll_script() {
     $ajax_url    = admin_url( 'admin-ajax.php' );
@@ -800,17 +816,30 @@ function headies_render_drop_card( $drop ) {
 }
 
 function headies_get_products_by_cat_query( $cat_slug, $paged ) {
+    $tax_query = array(
+        array(
+            'taxonomy' => 'product_cat',
+            'field'    => 'slug',
+            'terms'    => $cat_slug,
+        ),
+    );
+
+    $upcoming_drop_ids = headies_get_upcoming_drop_term_ids();
+    if ( ! empty( $upcoming_drop_ids ) ) {
+        $tax_query['relation'] = 'AND';
+        $tax_query[]           = array(
+            'taxonomy' => 'product_drop',
+            'field'    => 'term_id',
+            'terms'    => $upcoming_drop_ids,
+            'operator' => 'NOT IN',
+        );
+    }
+
     return new WP_Query( array(
         'post_type'      => 'product',
         'posts_per_page' => 8,
         'paged'          => $paged,
-        'tax_query'      => array(
-            array(
-                'taxonomy' => 'product_cat',
-                'field'    => 'slug',
-                'terms'    => $cat_slug,
-            ),
-        ),
+        'tax_query'      => $tax_query,
     ) );
 }
 
@@ -823,12 +852,26 @@ function headies_get_accessories_query( $paged ) {
 }
 
 function headies_get_search_hats_query( $search_term, $paged ) {
-    return new WP_Query( array(
+    $args = array(
         's'              => $search_term,
         'post_type'      => 'product',
         'posts_per_page' => 8,
         'paged'          => $paged,
-    ) );
+    );
+
+    $upcoming_drop_ids = headies_get_upcoming_drop_term_ids();
+    if ( ! empty( $upcoming_drop_ids ) ) {
+        $args['tax_query'] = array(
+            array(
+                'taxonomy' => 'product_drop',
+                'field'    => 'term_id',
+                'terms'    => $upcoming_drop_ids,
+                'operator' => 'NOT IN',
+            ),
+        );
+    }
+
+    return new WP_Query( $args );
 }
 
 function headies_enqueue_hats_script() {
@@ -994,11 +1037,25 @@ function headies_ajax_live_search() {
         wp_send_json_success( array( 'html' => '', 'count' => 0 ) );
     }
 
-    $query = new WP_Query( array(
+    $live_search_args = array(
         's'              => $term,
         'post_type'      => 'product',
         'posts_per_page' => 4,
-    ) );
+    );
+
+    $upcoming_drop_ids = headies_get_upcoming_drop_term_ids();
+    if ( ! empty( $upcoming_drop_ids ) ) {
+        $live_search_args['tax_query'] = array(
+            array(
+                'taxonomy' => 'product_drop',
+                'field'    => 'term_id',
+                'terms'    => $upcoming_drop_ids,
+                'operator' => 'NOT IN',
+            ),
+        );
+    }
+
+    $query = new WP_Query( $live_search_args );
 
     ob_start();
     if ( $query->have_posts() ) {

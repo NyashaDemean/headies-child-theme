@@ -3,22 +3,14 @@
 <?php
 $headies_drops = headies_get_drops();
 
-$headies_featured_drop = null;
-$headies_trending_drop = null;
-foreach ( $headies_drops as $headies_drop_row ) {
-	if ( 'ivory-league' === $headies_drop_row['slug'] || 'the-ivory-league' === $headies_drop_row['slug'] ) {
-		$headies_featured_drop = $headies_drop_row;
-	}
-	if ( 'petals-pennants' === $headies_drop_row['slug'] ) {
-		$headies_trending_drop = $headies_drop_row;
-	}
-}
-if ( ! $headies_featured_drop && ! empty( $headies_drops ) ) {
-	$headies_featured_drop = $headies_drops[0];
-}
-if ( ! $headies_trending_drop && ! empty( $headies_drops ) ) {
-	$headies_trending_drop = $headies_drops[0];
-}
+// Feature whichever drops are actually live rather than a hardcoded pair,
+// so the homepage doesn't showcase a drop before its release date.
+$headies_live_drops = array_values( array_filter( $headies_drops, function ( $drop ) {
+	return 'live' === $drop['status'];
+} ) );
+
+$headies_featured_drop = ! empty( $headies_live_drops ) ? $headies_live_drops[0] : ( ! empty( $headies_drops ) ? $headies_drops[0] : null );
+$headies_trending_drop = isset( $headies_live_drops[1] ) ? $headies_live_drops[1] : $headies_featured_drop;
 
 $headies_home_drop_image_id  = get_option( 'headies_home_drop_image_id' );
 $headies_featured_banner_img = $headies_home_drop_image_id ? wp_get_attachment_image_url( $headies_home_drop_image_id, 'full' ) : '';
